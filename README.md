@@ -25,7 +25,7 @@ The app turns sustainable choices into a rewarding game loop:
 Nav bar is 4 tabs: **Home, Map, Shop, Stats** (matches the teammate-designed wireframe — see `frontend/src/components/Home.jsx` for the Canva reference implementation).
 
 - **Home** *(core, static mock)* — landing dashboard: greeting header, "Explore Batam" hero card, search bar (non-functional), steps progress card, "Popular in Batam" destination cards. All data is hardcoded in `data/home-mock.js`; no buttons are wired up yet — visual scaffold only, matching the wireframe.
-- **Map** *(core, functional)* — points of interest with crowd-density markers, selectable color-coded routes, and a simulated-walk Check-In flow.
+- **Map** *(core, functional)* — points of interest with crowd-density markers, selectable color-coded routes, and a real geolocation Check-In flow.
 - **Shop** *(core, functional)* — was "Wallet" in earlier drafts, renamed to match the design. Currently shows the voucher list + QR codes; a real storefront (purchasable items) is future work.
 - **Stats** *(core, static mock)* — "Your Activity" (steps ring, weekly bar chart, eco impact, next-reward progress) and "Rewards & Badges" (milestone stepper, badges grid) sub-views, toggled via an in-screen segmented control. All data is hardcoded in `data/home-mock.js`; matches the Canva wireframe.
 - **Color-coded pitstops/landmarks** — visual crowd-density signal used to actively manage and disperse crowds (implemented on the Map tab).
@@ -37,7 +37,7 @@ Everything is faked/mocked for the demo — no real backend sensing or multiplay
 | Feature | Demo approach |
 |---|---|
 | Crowd density / red roads | Hardcoded time-of-day lookup table, not live sensor data |
-| Geofence check-in | **Simulated walk** — a "Start walking" control animates a marker along the selected route's path over ~15–25s; Check-In distance is computed from that simulated position, not real device GPS (`navigator.geolocation` was removed, not kept as a fallback) |
+| Geofence check-in | **Foreground** "Check In" button, gated on a live, continuously-tracked position (`navigator.geolocation.watchPosition()` via the shared `useLiveLocation` hook) — **not** background GPS tracking (unreliable/unsupported for PWAs on iOS Safari) |
 | "Pikmin" following bonus | Static copy (e.g. "12 other travelers took this route today +50 pts") — no real multi-user path tracking |
 | CO₂ savings ticker | Hardcoded estimate per route/mode, not a live routing API |
 | Voucher QR redemption | Real QR generation/scan, but pointing at mock voucher data |
@@ -51,19 +51,19 @@ Everything is faked/mocked for the demo — no real backend sensing or multiplay
 ## 🧭 User Journey
 
 **Step 1 — Pre-Departure Decision at Accommodation**
-The user opens the PWA from their hotel room to plan their morning outing. The map shows a central **History Museum** and a peripheral **Mangrove Boardwalk**, each with a live crowd indicator: the Mangrove is red (**"Very crowded"**), the Museum is green (**"Not crowded"**). Lower crowds mean better rewards (steps-based). The user bypasses the congested mangrove and heads to the Museum first.
+The user opens the PWA from their hotel room to plan their morning outing. The map shows a live "you are here" marker plus 5 real Batam destinations (Welcome to Batam Sign, Mega Mall Batam Centre, Dataran Engku Putri, and two Politeknik Negeri Batam campus points), each with a live crowd indicator. Lower crowds mean better rewards (steps-based). The user picks a destination — tapping its marker or the picker row — and bypasses a congested one in favor of a quieter one.
 
-**Step 2 — Traveling and Exploring the Museum**
-After visiting the Museum, the user reopens the app to check the afternoon schedule. The Mangrove marker has flipped from red to green now that morning tour buses have left. Tapping the Mangrove pop-up shows the site description, current quiet status, and an attached reward voucher for a nearby local eatery upon arrival.
+**Step 2 — Traveling and Exploring**
+After visiting one destination, the user reopens the app and picks another. Crowd markers update by time of day; tapping a destination's pop-up shows its description, current status, and (where available) an attached reward voucher for a nearby local eatery upon arrival.
 
 **Step 3 — Route Selection and Green Transit**
-Navigating from the Museum to the Mangrove, the user sees three named routing options — Scenic Park Route, Direct Route, and Mosque Loop — each showing time, distance, step-credit points, and a crowd-level badge, color-coded by crowd (red = more crowded). A CO₂-saved estimate is shown per route. The user picks the low-crowd Scenic Park Route for the most step credits.
+Once a destination is chosen, the user sees that destination's own routes — 3 named options (green/yellow/red) for most destinations, or 2 (green/red) for the two Politeknik points — each showing time, distance, step-credit points, and a crowd-level badge, color-coded by crowd (red = more crowded). The green route is always the shortest/fastest. A CO₂-saved estimate is shown per route.
 
-**Step 4 — Arrival at the Mangrove (Simulated Walk)**
-The user taps **"Start walking"**, which animates their position along the selected route toward the Mangrove entrance over ~15–25 seconds — a stand-in for physically walking there, so the demo works without anyone needing to be on-site in Batam. Once the simulated walk arrives, tapping **"Check In"** confirms the (simulated) position is within the Mangrove's geofenced boundary. A "You've arrived!" screen then shows the points earned from the selected route with a Claim button, and issues a digital voucher for a local café down the road.
+**Step 4 — Arrival and GPS Verification**
+The user walks to the destination and opens the app to check in, tapping a **"Check In"** button. The app reads the device's live, continuously-tracked position (foreground only — no background tracking) and confirms the user is within 300m of the destination's real coordinates. Once in range, a "You've arrived!" screen shows the points earned from the selected route with a Claim button, and issues a digital voucher for a local café down the road.
 
 **Step 5 — Reward Redemption at the Local Eatery**
-The user opens the "Shop" tab, which shows the active discount voucher linked to the completed mangrove trip under "Check-in rewards" on the My Vouchers screen. They also have points to spend from walking — the Rewards Shop lets them redeem points for additional Food/Activities/Stay vouchers, tracked alongside the check-in reward. Tapping "Use" on a Food voucher surfaces nearby participating eateries; picking one — or presenting the check-in voucher directly — shows the dynamic QR code. They present it to the cashier, who scans it to apply the discount — shifting tourist spend directly into the peripheral local economy.
+The user opens the "Shop" tab, which shows the active discount voucher linked to the completed trip under "Check-in rewards" on the My Vouchers screen. They also have points to spend from walking — the Rewards Shop lets them redeem points for additional Food/Activities/Stay vouchers, tracked alongside the check-in reward. Tapping "Use" on a Food voucher surfaces nearby participating eateries; picking one opens directions in an external maps app and shows the dynamic QR code — or presenting the check-in voucher directly shows the QR code. They present it to the cashier, who scans it to apply the discount — shifting tourist spend directly into the peripheral local economy.
 
 ---
 
@@ -75,7 +75,7 @@ The user opens the "Shop" tab, which shows the active discount voucher linked to
 - **Unified Build Scripts**: Single command (`npm run build`) to install, bundle frontend assets, and launch the server.
 - **Map & routing, fully open-source**: [Leaflet](https://react-leaflet.js.org/) + [OpenStreetMap](https://www.openstreetmap.org/) tiles — no API key, no billing account, no Google Cloud setup. (We looked at Google Maps Platform first; ruled it out since it needs a billing account even for free-tier usage and offers no branding benefit here.)
 - **Client-side QR codes**: [`qrcode.react`](https://www.npmjs.com/package/qrcode.react) renders voucher QR codes with zero network calls.
-- **Simulated-walk check-in**: a "Start walking" control animates a marker along the selected route's path (no real device GPS) so the demo works without being physically in Batam; Check-In distance is computed against that simulated position.
+- **Geolocation check-in**: native `navigator.geolocation.watchPosition` via the shared `useLiveLocation` hook (no library, no key) — foreground-only by design, since background GPS isn't reliably supported for PWAs on iOS Safari.
 - **No UI component library**: plain React + hand-written CSS (`index.css`). Framework7-React was tried and reverted — see "UI Library Decision" below before reaching for it again.
 - **Dark mode**: a nav-bar toggle switches the whole app shell between light/dark, persists the choice in `localStorage`, and defaults to the OS `prefers-color-scheme` on first load. See `frontend/src/utils/theme.js` and the theming note in `AGENTS.md`.
 
@@ -115,18 +115,20 @@ batam-go/
 │       ├── index.css        # App shell + per-screen styling (plain CSS, no UI kit — see note below)
 │       ├── components/
 │       │   ├── Home.jsx     # Static mock landing screen (matches Canva wireframe, not wired up)
-│       │   ├── MapView.jsx  # Leaflet map, POI markers, route picker, simulated walk + Check-In button
+│       │   ├── MapView.jsx  # Leaflet map, POI markers, route picker, Check-In button
 │       │   ├── Shop.jsx     # Voucher list with QR codes (renamed from Wallet.jsx)
 │       │   ├── Stats.jsx    # Activity + Rewards & Badges sub-views (matches Canva wireframe, in-screen toggle)
 │       │   ├── NavBar.jsx   # Bottom tab bar (Home / Map / Shop / Stats)
 │       │   └── ConsentBanner.jsx # First-visit geolocation disclosure banner, dismiss flag in localStorage
 │       ├── data/
-│       │   ├── pois.js       # Museum/Mangrove coordinates + hardcoded crowd lookup
-│       │   ├── routes.js     # Hardcoded route polylines + CO₂/distance estimates
+│       │   ├── destinations.js # 5 real Batam POIs, each with its own real road-snapped routes + CO₂/distance estimates
 │       │   ├── vouchers.js   # Initial mock voucher(s)
 │       │   └── home-mock.js  # Hardcoded user/steps/popular-destinations/map-pins data for Home, plus weekly-steps/rewards/badges data for Stats
+│       ├── hooks/
+│       │   └── useLiveLocation.js # Shared continuous-tracking geolocation hook (MapView + Shop)
 │       └── utils/
 │           ├── geo.js       # Haversine distance for the geofence check-in
+│           ├── mapIcons.js  # Shared Leaflet marker icons (crowd, spot, live "you are here")
 │           └── rewards.js   # Pure points/redemption math used by Shop.jsx
 │
 └── .agents/skills/          # Custom Agent Skills (Git formatting, Plan writing, etc.)
