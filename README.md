@@ -135,14 +135,10 @@ batam-go/
 ## ⏱️ Quick Start Guide
 
 ### 1. Initial Setup
-Install the root and frontend dependencies:
+Install the root dependencies; a `postinstall` script automatically installs the frontend dependencies too:
 
 ```bash
-# Install root dependencies
 npm install
-
-# Install frontend dependencies
-cd frontend && npm install && cd ..
 ```
 
 ---
