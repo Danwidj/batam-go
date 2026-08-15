@@ -1,0 +1,12 @@
+# Node dependencies
+node_modules/
+frontend/node_modules/
+
+# Build outputs
+dist/
+frontend/dist/
+.vite/
+
+# Environment and system files
+.env
+.DS_Store
