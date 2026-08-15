@@ -100,6 +100,7 @@ Framework7-React was tried for the nav bar / list / card components and **caused
 batam-go/
 ├── package.json             # Root orchestrator (Express dependencies & build scripts)
 ├── server.js                # Express backend (API routes + static PWA server)
+├── vercel.json               # Static frontend-only deploy config (builds frontend/, ignores server.js)
 ├── .gitignore                # Excludes node_modules, dist, .env, and .DS_Store
 │
 ├── frontend/                # React Vite PWA Application
