@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Polyline, ZoomControl } from 'react-leaflet';
 import { divIcon } from 'leaflet';
 import { POIS, getCrowdStatus, CROWD_META, CROWD_LEGEND } from '../data/pois.js';
@@ -7,7 +7,8 @@ import { haversineDistanceMeters } from '../utils/geo.js';
 
 const CHECK_IN_RADIUS_M = 300;
 const CHECK_IN_POI_ID = 'mangrove';
-const CENTER = [1.1385, 104.035];
+const CENTER = [1.1305, 104.035];
+const WALK_DURATION_MS = 20000;
 
 function crowdIcon(status) {
   const color = CROWD_META[status].color;
@@ -19,16 +20,98 @@ function crowdIcon(status) {
   });
 }
 
+function walkerIcon() {
+  return divIcon({
+    className: '',
+    html: '<span style="display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:#1565c0;border:3px solid white;box-shadow:0 0 6px rgba(0,0,0,0.5);font-size:14px;">🧍</span>',
+    iconSize: [26, 26],
+    iconAnchor: [13, 13]
+  });
+}
+
+function pointAlongPath(path, t) {
+  if (path.length === 1) return path[0];
+  const segmentLengths = [];
+  let totalLength = 0;
+  for (let i = 0; i < path.length - 1; i++) {
+    const length = haversineDistanceMeters(path[i][0], path[i][1], path[i + 1][0], path[i + 1][1]);
+    segmentLengths.push(length);
+    totalLength += length;
+  }
+  if (totalLength === 0) return path[0];
+
+  let target = t * totalLength;
+  for (let i = 0; i < segmentLengths.length; i++) {
+    if (target <= segmentLengths[i]) {
+      const frac = segmentLengths[i] === 0 ? 0 : target / segmentLengths[i];
+      const [lat1, lng1] = path[i];
+      const [lat2, lng2] = path[i + 1];
+      return [lat1 + (lat2 - lat1) * frac, lng1 + (lng2 - lng1) * frac];
+    }
+    target -= segmentLengths[i];
+  }
+  return path[path.length - 1];
+}
+
 export default function MapView({ onVoucherEarned }) {
   const [selectedPoiId, setSelectedPoiId] = useState(null);
   const [savedPoiIds, setSavedPoiIds] = useState(() => new Set());
   const [selectedRouteId, setSelectedRouteId] = useState(ROUTES[0].id);
   const [checkIn, setCheckIn] = useState({ status: 'idle', message: '' });
   const [arrival, setArrival] = useState(null);
+  const [walkState, setWalkState] = useState('idle');
+  const [simulatedPosition, setSimulatedPosition] = useState(null);
+  const animationRef = useRef(null);
+  const walkStartRef = useRef(null);
 
   const checkInPoi = POIS.find((p) => p.id === CHECK_IN_POI_ID);
   const selectedPoi = POIS.find((p) => p.id === selectedPoiId) ?? null;
   const selectedRoute = getRouteById(selectedRouteId);
+
+  useEffect(() => {
+    return () => {
+      if (animationRef.current !== null) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (animationRef.current !== null) {
+      cancelAnimationFrame(animationRef.current);
+      animationRef.current = null;
+    }
+    walkStartRef.current = null;
+    setWalkState('idle');
+    setSimulatedPosition(null);
+  }, [selectedRouteId]);
+
+  function startWalking() {
+    if (animationRef.current !== null) {
+      cancelAnimationFrame(animationRef.current);
+      animationRef.current = null;
+    }
+    const path = selectedRoute.path;
+    walkStartRef.current = null;
+    setWalkState('walking');
+    setSimulatedPosition(path[0]);
+
+    function step(timestamp) {
+      if (walkStartRef.current === null) {
+        walkStartRef.current = timestamp;
+      }
+      const elapsed = timestamp - walkStartRef.current;
+      const t = Math.min(elapsed / WALK_DURATION_MS, 1);
+      setSimulatedPosition(pointAlongPath(path, t));
+      if (t < 1) {
+        animationRef.current = requestAnimationFrame(step);
+      } else {
+        animationRef.current = null;
+        setWalkState('arrived');
+      }
+    }
+    animationRef.current = requestAnimationFrame(step);
+  }
 
   function toggleSave(poiId) {
     setSavedPoiIds((prev) => {
@@ -43,34 +126,29 @@ export default function MapView({ onVoucherEarned }) {
   }
 
   function handleCheckIn() {
-    if (!navigator.geolocation) {
-      setCheckIn({ status: 'error', message: 'Geolocation not supported on this device.' });
+    if (walkState !== 'arrived') {
+      setCheckIn({
+        status: 'too-far',
+        message: 'Finish walking the route first, then check in once you arrive.'
+      });
       return;
     }
-    setCheckIn({ status: 'checking', message: 'Getting your location…' });
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const distance = haversineDistanceMeters(
-          position.coords.latitude,
-          position.coords.longitude,
-          checkInPoi.lat,
-          checkInPoi.lng
-        );
-        if (distance <= CHECK_IN_RADIUS_M) {
-          setCheckIn({ status: 'success', message: `🌸 Checked in at the ${checkInPoi.name}!` });
-          onVoucherEarned(checkInPoi.voucher);
-          setArrival({ poiName: checkInPoi.name, points: selectedRoute.points });
-        } else {
-          setCheckIn({
-            status: 'too-far',
-            message: `You're ${(distance / 1000).toFixed(1)}km away — get within ${CHECK_IN_RADIUS_M}m to check in.`
-          });
-        }
-      },
-      (error) => {
-        setCheckIn({ status: 'error', message: `Location error: ${error.message}` });
-      }
+    const distance = haversineDistanceMeters(
+      simulatedPosition[0],
+      simulatedPosition[1],
+      checkInPoi.lat,
+      checkInPoi.lng
     );
+    if (distance <= CHECK_IN_RADIUS_M) {
+      setCheckIn({ status: 'success', message: `🌸 Checked in at the ${checkInPoi.name}!` });
+      onVoucherEarned(checkInPoi.voucher);
+      setArrival({ poiName: checkInPoi.name, points: selectedRoute.points });
+    } else {
+      setCheckIn({
+        status: 'too-far',
+        message: `You're ${(distance / 1000).toFixed(1)}km away — keep walking to get within ${CHECK_IN_RADIUS_M}m to check in.`
+      });
+    }
   }
 
   function handleClaim() {
@@ -112,6 +190,7 @@ export default function MapView({ onVoucherEarned }) {
               }}
             />
           ))}
+          {simulatedPosition && <Marker position={simulatedPosition} icon={walkerIcon()} zIndexOffset={1000} />}
         </MapContainer>
 
         <div className="crowd-legend">
@@ -209,8 +288,15 @@ export default function MapView({ onVoucherEarned }) {
         <div className="checkin-summary">
           {selectedRoute.name} · {selectedRoute.distanceKm} km
         </div>
-        <button className="checkin-btn" onClick={handleCheckIn} disabled={checkIn.status === 'checking'}>
-          {checkIn.status === 'checking' ? 'Checking in…' : `📍 Check In at ${checkInPoi.name}`}
+        <button className="walk-btn" onClick={startWalking}>
+          {walkState === 'walking'
+            ? '🚶 Walking…'
+            : walkState === 'arrived'
+              ? '🔁 Walk again'
+              : '🚶 Start walking'}
+        </button>
+        <button className="checkin-btn" onClick={handleCheckIn} disabled={walkState !== 'arrived'}>
+          {walkState === 'arrived' ? `📍 Check In at ${checkInPoi.name}` : '🚶 Finish walking to check in'}
         </button>
         {checkIn.message && checkIn.status !== 'success' && (
           <p className={`checkin-message ${checkIn.status}`}>{checkIn.message}</p>

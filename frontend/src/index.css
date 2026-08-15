@@ -383,6 +383,18 @@ body {
   margin-bottom: 8px;
 }
 
+.walk-btn {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 8px;
+  border: none;
+  border-radius: 10px;
+  background: #1565c0;
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
 .checkin-btn {
   width: 100%;
   padding: 12px;
