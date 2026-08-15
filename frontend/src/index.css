@@ -507,7 +507,8 @@ body {
 }
 
 .checkin-message.too-far,
-.checkin-message.error {
+.checkin-message.error,
+.checkin-message.location-error {
   color: #c62828;
 }
 

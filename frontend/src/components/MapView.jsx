@@ -44,12 +44,14 @@ export default function MapView({ onVoucherEarned }) {
   function handleCheckIn() {
     if (!selectedDest) return;
     if (liveLocation.error) {
+      const errorMessages = {
+        unsupported: 'Geolocation is not supported on this device — check-in needs location access.',
+        'permission-denied': 'Location permission is blocked — enable it in your browser settings to check in.',
+        unavailable: "Couldn't get an accurate location fix — move somewhere with a clearer signal and try again."
+      };
       setCheckIn({
         status: 'location-error',
-        message:
-          liveLocation.error === 'unsupported'
-            ? 'Geolocation is not supported on this device — check-in needs location access.'
-            : "Location permission is blocked — enable it in your browser settings to check in."
+        message: errorMessages[liveLocation.error] ?? errorMessages.unavailable
       });
       return;
     }
