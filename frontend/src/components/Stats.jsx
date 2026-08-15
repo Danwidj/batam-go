@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { STEPS, WEEKLY_STEPS, NEXT_REWARD, ECO_IMPACT, REWARDS, BADGES } from '../data/home-mock.js';
+import { USER, STEPS, WEEKLY_STEPS, NEXT_REWARD, ECO_IMPACT, REWARDS, BADGES } from '../data/home-mock.js';
+
+const FULL_DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
 function formatMinutes(totalMinutes) {
   const h = Math.floor(totalMinutes / 60);
@@ -11,14 +13,66 @@ function formatThousands(value) {
   return `${Math.round(value / 1000)}K`;
 }
 
-function StepsRing({ current, goal, pctLabel }) {
-  const pct = Math.min(100, Math.round((current / goal) * 100));
+function ProfileHeader() {
   return (
-    <div className="stats-ring" style={{ '--pct': pct }}>
+    <div className="stats-profile-header">
+      <div className="stats-profile-info">
+        <div className="stats-profile-avatar">
+          {USER.name ? USER.name.charAt(0) : 'J'}
+        </div>
+        <div className="stats-profile-details">
+          <div className="stats-profile-greeting">Hello, {USER.name || 'Explorer'} 👋</div>
+          <div className="stats-profile-sub">
+            <span className="stats-profile-badge">🔥 5 Day Streak</span>
+            <span className="stats-profile-badge">Level 4 Eco</span>
+          </div>
+        </div>
+      </div>
+      <div className="stats-profile-bell">
+        🔔
+        {USER.hasNotification && <span className="stats-profile-bell-dot" />}
+      </div>
+    </div>
+  );
+}
+
+function StepsRing({ current, goal, pctLabel }) {
+  const pct = Math.min(100, Math.max(0, Math.round((current / goal) * 100)));
+  const radius = 68;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (pct / 100) * circumference;
+
+  return (
+    <div className="stats-ring">
+      <svg className="stats-ring-svg" viewBox="0 0 160 160">
+        <defs>
+          <linearGradient id="stats-ring-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#2e7d32" />
+            <stop offset="100%" stopColor="#4caf50" />
+          </linearGradient>
+        </defs>
+        <circle
+          className="stats-ring-bg"
+          cx="80"
+          cy="80"
+          r={radius}
+          strokeWidth="12"
+        />
+        <circle
+          className="stats-ring-progress"
+          cx="80"
+          cy="80"
+          r={radius}
+          strokeWidth="12"
+          strokeDasharray={circumference}
+          strokeDashoffset={strokeDashoffset}
+          stroke="url(#stats-ring-gradient)"
+        />
+      </svg>
       <div className="stats-ring-inner">
         <div className="stats-ring-value">{current.toLocaleString()}</div>
         <div className="stats-ring-sub">of {goal.toLocaleString()} steps</div>
-        <div className="stats-ring-pct">{pct}%</div>
+        <div className="stats-ring-pct-pill">{pct}%</div>
         <div className="stats-ring-pct-label">{pctLabel}</div>
       </div>
     </div>
@@ -26,9 +80,27 @@ function StepsRing({ current, goal, pctLabel }) {
 }
 
 function ActivityView({ period, onPeriodChange }) {
+  const defaultTodayIndex = WEEKLY_STEPS.days.findIndex((d) => d.isToday);
+  const [selectedDayIndex, setSelectedDayIndex] = useState(defaultTodayIndex >= 0 ? defaultTodayIndex : 2);
+
   const source = period === 'daily' ? STEPS : WEEKLY_STEPS;
   const rewardPct = Math.min(100, Math.round((STEPS.current / STEPS.goal) * 100));
-  const maxDayValue = Math.max(...WEEKLY_STEPS.days.map((d) => d.steps));
+
+  // Determine chart scale with grid step lines (11K, 9K, 8K, 7K, 5K, 3K, 0)
+  const chartMaxScale = 10000;
+  const gridTicks = [
+    { label: '11K', topPct: 0 },
+    { label: '9K', topPct: 10 },
+    { label: '8K', topPct: 20 },
+    { label: '7K', topPct: 30 },
+    { label: '5K', topPct: 50 },
+    { label: '3K', topPct: 70 },
+    { label: '0', topPct: 100 }
+  ];
+
+  const selectedDay = WEEKLY_STEPS.days[selectedDayIndex] || WEEKLY_STEPS.days[0];
+  const selectedDayKm = (selectedDay.steps * 0.00075).toFixed(1);
+  const selectedDayMins = Math.round(selectedDay.steps / 100);
 
   return (
     <>
@@ -56,54 +128,119 @@ function ActivityView({ period, onPeriodChange }) {
         />
         <div className="stats-ring-meta">
           <div className="stats-ring-meta-item">
-            <div>📍 {source.distanceKm} km</div>
-            <span>Distance</span>
+            <span className="stats-meta-icon">📍</span>
+            <div>
+              <strong>{source.distanceKm} km</strong>
+              <small>Distance</small>
+            </div>
           </div>
           <div className="stats-ring-meta-item">
-            <div>⏱️ {formatMinutes(source.activeMinutes)}</div>
-            <span>Active</span>
+            <span className="stats-meta-icon">⏱️</span>
+            <div>
+              <strong>{formatMinutes(source.activeMinutes)}</strong>
+              <small>Active</small>
+            </div>
           </div>
         </div>
       </div>
 
       <div className="stats-card">
         <div className="stats-card-header">
-          <span>This Week</span>
-          <span>
-            {WEEKLY_STEPS.current.toLocaleString()} steps{' '}
+          <span className="stats-card-header-title">This Week</span>
+          <span className="stats-card-header-meta">
+            <strong>{WEEKLY_STEPS.current.toLocaleString()}</strong> steps{' '}
             <span className="stats-positive">+{WEEKLY_STEPS.changePct}% ↑</span>
           </span>
         </div>
-        <div className="stats-bars">
-          {WEEKLY_STEPS.days.map((d, i) => (
-            <div className="stats-bar-col" key={i}>
-              <div className="stats-bar-track">
-                <div
-                  className={`stats-bar-fill ${d.isToday ? 'today' : ''}`}
-                  style={{ height: `${(d.steps / maxDayValue) * 100}%` }}
-                />
-              </div>
-              <span>{d.day}</span>
-            </div>
-          ))}
+
+        {/* Selected Day Banner */}
+        <div className="stats-day-banner">
+          <div className="stats-day-banner-title">
+            <span>{FULL_DAY_NAMES[selectedDayIndex]}</span>
+            {selectedDay.isToday && <span className="stats-day-today-tag">Today</span>}
+          </div>
+          <div className="stats-day-banner-steps">
+            <strong>{selectedDay.steps.toLocaleString()}</strong> steps
+          </div>
+          <div className="stats-day-banner-meta">
+            <span>📍 ~{selectedDayKm} km</span>
+            <span>⏱️ ~{selectedDayMins} mins</span>
+          </div>
         </div>
+
+        {/* Bar Chart Container with Wireframe Y-Axis Tick Alignment (10K, 8K, 5K, 3K, 0) */}
+        <div className="stats-chart-wrapper">
+          <div className="stats-y-axis">
+            {gridTicks.map((tick) => (
+              <span
+                key={tick.label}
+                className="stats-y-label"
+                style={{ top: `${tick.topPct}%` }}
+              >
+                {tick.label}
+              </span>
+            ))}
+          </div>
+
+          <div className="stats-chart-body">
+            <div className="stats-chart-grid-lines">
+              {gridTicks.filter(t => t.topPct < 100).map((tick) => (
+                <div
+                  key={tick.label}
+                  className="stats-grid-line-dash"
+                  style={{ top: `${tick.topPct}%` }}
+                />
+              ))}
+            </div>
+
+            <div className="stats-bars">
+              {WEEKLY_STEPS.days.map((d, i) => {
+                const isSelected = i === selectedDayIndex;
+                const fillPct = Math.min(100, Math.max(2, (d.steps / chartMaxScale) * 100));
+
+                return (
+                  <div
+                    className={`stats-bar-col ${isSelected ? 'selected' : ''}`}
+                    key={i}
+                    onClick={() => setSelectedDayIndex(i)}
+                    title={`${FULL_DAY_NAMES[i]}: ${d.steps.toLocaleString()} steps`}
+                  >
+                    <div className={`stats-bar-val ${isSelected ? 'selected' : ''}`}>
+                      {formatThousands(d.steps)}
+                    </div>
+                    <div className="stats-bar-track-clean">
+                      <div
+                        className={`stats-bar-fill ${isSelected ? 'selected' : 'unselected'}`}
+                        style={{ height: `${fillPct}%` }}
+                      />
+                    </div>
+                    <span className={`stats-bar-day ${d.isToday ? 'is-today' : ''} ${isSelected ? 'selected' : ''}`}>
+                      {d.day}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+        <div className="stats-chart-hint">Tap any day bar to view detailed steps</div>
       </div>
 
       <div className="stats-card">
         <div className="stats-card-label">Your Eco Impact</div>
         <div className="stats-eco-grid">
           <div className="stats-eco-item">
-            <span>🌿</span>
+            <span className="stats-eco-icon">🌿</span>
             <strong>{ECO_IMPACT.co2SavedKg} kg</strong>
             <small>CO₂ Saved</small>
           </div>
           <div className="stats-eco-item">
-            <span>🚗</span>
+            <span className="stats-eco-icon">🚗</span>
             <strong>{ECO_IMPACT.carTripsAvoided}</strong>
             <small>Car Trips Avoided</small>
           </div>
           <div className="stats-eco-item">
-            <span>🌳</span>
+            <span className="stats-eco-icon">🌳</span>
             <strong>{ECO_IMPACT.treesEquivalent}</strong>
             <small>Trees Equivalent</small>
           </div>
@@ -111,8 +248,11 @@ function ActivityView({ period, onPeriodChange }) {
       </div>
 
       <div className="stats-reward-line">
-        <div className="stats-reward-text">
-          🎁 {NEXT_REWARD.stepsRemaining.toLocaleString()} steps to your next reward
+        <div className="stats-reward-header">
+          <span className="stats-reward-icon">🎁</span>
+          <span className="stats-reward-text">
+            <strong>{NEXT_REWARD.stepsRemaining.toLocaleString()}</strong> steps to your next reward
+          </span>
         </div>
         <div className="stats-reward-bar">
           <div className="stats-reward-bar-fill" style={{ width: `${rewardPct}%` }} />
@@ -130,10 +270,12 @@ function RewardsView() {
   return (
     <>
       <div className="stats-card stats-total-card">
-        <div>
-          <div className="stats-card-label">Total Steps</div>
+        <div className="stats-total-content">
+          <div className="stats-total-label">Total Steps Earned</div>
           <div className="stats-total-value">{totalSteps.toLocaleString()}</div>
-          <div className="stats-credit-pill">✓ {REWARDS.stepCredits} Step Credits</div>
+          <div className="stats-credit-pill">
+            <span className="stats-credit-check">✓</span> {REWARDS.stepCredits} Step Credits
+          </div>
         </div>
         <div className="stats-island-art" />
       </div>
@@ -142,20 +284,27 @@ function RewardsView() {
         <div className="stats-card-label">Next Big Goal</div>
         <StepsRing current={totalSteps} goal={goal} pctLabel="complete" />
         <div className="stats-goal-note">
-          {stepsToGoal.toLocaleString()} steps to unlock {REWARDS.creditsAtNextGoal.toLocaleString()} credits
+          <strong>{stepsToGoal.toLocaleString()}</strong> steps to unlock <strong>{REWARDS.creditsAtNextGoal.toLocaleString()}</strong> credits
         </div>
       </div>
 
       <div className="stats-card">
         <div className="stats-card-label">Milestone Rewards</div>
         <div className="stats-milestones">
-          {REWARDS.milestones.map((m) => {
+          {REWARDS.milestones.map((m, idx) => {
             const done = totalSteps >= m.threshold;
             return (
               <div className="stats-milestone" key={m.threshold}>
-                <div className={`stats-milestone-dot ${done ? 'done' : ''}`}>{done ? '✓' : '🎁'}</div>
-                <div className="stats-milestone-label">{formatThousands(m.threshold)}</div>
-                <div className="stats-milestone-credits">{m.credits} credits</div>
+                <div className={`stats-milestone-dot ${done ? 'done' : ''}`}>
+                  {done ? '✓' : '🎁'}
+                </div>
+                {idx < REWARDS.milestones.length - 1 && (
+                  <div className={`stats-milestone-line ${done ? 'done' : ''}`} />
+                )}
+                <div className="stats-milestone-info">
+                  <div className="stats-milestone-label">{formatThousands(m.threshold)} steps</div>
+                  <div className="stats-milestone-credits">+{m.credits} credits</div>
+                </div>
               </div>
             );
           })}
@@ -166,14 +315,25 @@ function RewardsView() {
         <div className="stats-card-label">Your Badges</div>
         <div className="stats-badges-grid">
           {BADGES.map((b) => (
-            <div className={`stats-badge ${b.earned ? 'earned' : 'locked'}`} key={b.id}>
-              <div className="stats-badge-icon">{b.icon}</div>
+            <div className={`stats-badge-card ${b.earned ? 'earned' : 'locked'}`} key={b.id}>
+              <div className="stats-badge-img-wrapper">
+                <img className="stats-badge-img" src={b.image} alt={b.name} />
+              </div>
               <div className="stats-badge-name">{b.name}</div>
-              {!b.earned && <div className="stats-badge-locked">Locked</div>}
+              <div className="stats-badge-status">
+                {b.earned ? (
+                  b.id === '50k-club' ? <span className="stats-badge-unlocked">Unlocked</span> : null
+                ) : (
+                  <span className="stats-badge-locked">Locked</span>
+                )}
+              </div>
             </div>
           ))}
         </div>
-        <div className="stats-badges-note">Complete challenges to earn more badges</div>
+        <div className="stats-badges-note-pill">
+          <span className="stats-badges-sprout-icon">🌱</span>
+          <span>Complete challenges to earn more badges</span>
+        </div>
       </div>
     </>
   );
@@ -185,6 +345,8 @@ export default function Stats() {
 
   return (
     <div className="stats-view">
+      <ProfileHeader />
+
       <div className="stats-switch">
         <button
           className={`stats-switch-btn ${view === 'activity' ? 'active' : ''}`}
@@ -208,3 +370,5 @@ export default function Stats() {
     </div>
   );
 }
+
+

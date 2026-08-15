@@ -22,19 +22,19 @@ export const MAP_PINS = [
 ];
 
 export const WEEKLY_STEPS = {
-  current: 52430,
+  current: 53000,
   goal: 70000,
   distanceKm: 41.6,
   activeMinutes: 612,
   changePct: 12,
   days: [
-    { day: 'M', steps: 6900 },
-    { day: 'T', steps: 7550 },
-    { day: 'W', steps: 8596, isToday: true },
-    { day: 'T', steps: 7800 },
-    { day: 'F', steps: 8100 },
-    { day: 'S', steps: 7200 },
-    { day: 'S', steps: 6284 }
+    { day: 'M', steps: 7000 },
+    { day: 'T', steps: 8000 },
+    { day: 'W', steps: 9000, isToday: true },
+    { day: 'T', steps: 8000 },
+    { day: 'F', steps: 8000 },
+    { day: 'S', steps: 7000 },
+    { day: 'S', steps: 6000 }
   ]
 };
 
@@ -61,10 +61,11 @@ export const REWARDS = {
 };
 
 export const BADGES = [
-  { id: 'trail-starter', name: 'Trail Starter', icon: '🥾', earned: true },
-  { id: 'barelang-explorer', name: 'Barelang Explorer', icon: '🌉', earned: true },
-  { id: 'island-hopper', name: 'Island Hopper', icon: '🏝️', earned: false },
-  { id: 'eco-walker', name: 'Eco Walker', icon: '🌱', earned: true },
-  { id: 'early-bird', name: 'Early Bird', icon: '🐦', earned: false },
-  { id: '50k-club', name: '50K Club', icon: '🏆', earned: true }
+  { id: 'trail-starter', name: 'Trail Starter', icon: '🥾', image: '/assets/badges/trail-starter.png', earned: true },
+  { id: 'barelang-explorer', name: 'Barelang Explorer', icon: '🌉', image: '/assets/badges/barelang-explorer.png', earned: true },
+  { id: 'island-hopper', name: 'Island Hopper', icon: '🏝️', image: '/assets/badges/island-hopper.png', earned: false },
+  { id: 'eco-walker', name: 'Eco Walker', icon: '🌱', image: '/assets/badges/eco-walker.png', earned: true },
+  { id: 'early-bird', name: 'Early Bird', icon: '🐦', image: '/assets/badges/early-bird.png', earned: false },
+  { id: '50k-club', name: '50K Club', icon: '🏆', image: '/assets/badges/50k-club.png', earned: true }
 ];
+
