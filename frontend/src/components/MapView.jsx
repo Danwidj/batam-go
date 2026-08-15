@@ -126,10 +126,10 @@ export default function MapView({ onVoucherEarned }) {
   }
 
   function handleCheckIn() {
-    if (!simulatedPosition) {
+    if (walkState !== 'arrived') {
       setCheckIn({
         status: 'too-far',
-        message: 'Start walking the route first, then check in once you arrive.'
+        message: 'Finish walking the route first, then check in once you arrive.'
       });
       return;
     }
@@ -295,8 +295,8 @@ export default function MapView({ onVoucherEarned }) {
               ? '🔁 Walk again'
               : '🚶 Start walking'}
         </button>
-        <button className="checkin-btn" onClick={handleCheckIn}>
-          📍 Check In at {checkInPoi.name}
+        <button className="checkin-btn" onClick={handleCheckIn} disabled={walkState !== 'arrived'}>
+          {walkState === 'arrived' ? `📍 Check In at ${checkInPoi.name}` : '🚶 Finish walking to check in'}
         </button>
         {checkIn.message && checkIn.status !== 'success' && (
           <p className={`checkin-message ${checkIn.status}`}>{checkIn.message}</p>
