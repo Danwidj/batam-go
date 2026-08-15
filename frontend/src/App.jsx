@@ -4,6 +4,7 @@ import MapView from './components/MapView.jsx';
 import Shop from './components/Shop.jsx';
 import Stats from './components/Stats.jsx';
 import NavBar from './components/NavBar.jsx';
+import ConsentBanner from './components/ConsentBanner.jsx';
 import { INITIAL_VOUCHERS } from './data/vouchers.js';
 
 export default function App() {
@@ -16,6 +17,7 @@ export default function App() {
 
   return (
     <div className="app-shell">
+      <ConsentBanner />
       <div className="app-content">
         {tab === 'home' && <Home />}
         {tab === 'map' && <MapView onVoucherEarned={handleVoucherEarned} />}
