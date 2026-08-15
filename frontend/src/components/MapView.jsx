@@ -14,6 +14,7 @@ export default function MapView({ onVoucherEarned }) {
   const [selectedRouteId, setSelectedRouteId] = useState(null);
   const [checkIn, setCheckIn] = useState({ status: 'idle', message: '' });
   const [arrival, setArrival] = useState(null);
+  const [poiCardCollapsed, setPoiCardCollapsed] = useState(false);
 
   const liveLocation = useLiveLocation();
 
@@ -27,6 +28,7 @@ export default function MapView({ onVoucherEarned }) {
     setSelectedDestId(destId);
     setSelectedRouteId(dest?.routes[0]?.id ?? null);
     setCheckIn({ status: 'idle', message: '' });
+    setPoiCardCollapsed(false);
   }
 
   function toggleSave(poiId) {
@@ -146,52 +148,62 @@ export default function MapView({ onVoucherEarned }) {
       )}
 
       {selectedDest && (
-        <div className="poi-card">
-          <div className="poi-card-handle" />
-          <div className="poi-card-header">
-            <div>
-              <h3 className="poi-card-title">{selectedDest.poi.name}</h3>
-              <p className="poi-card-subtitle">
-                {selectedDest.poi.category} · {selectedDest.poi.area}
-              </p>
-            </div>
-            <button className="poi-card-close" onClick={() => setSelectedDestId(null)} aria-label="Close">
-              ✕
-            </button>
-          </div>
+        <div className={`poi-card ${poiCardCollapsed ? 'collapsed' : ''}`}>
+          <button
+            type="button"
+            className="poi-card-handle"
+            onClick={() => setPoiCardCollapsed((collapsed) => !collapsed)}
+            aria-label={poiCardCollapsed ? 'Expand destination details' : 'Collapse destination details'}
+            aria-expanded={!poiCardCollapsed}
+          />
+          {!poiCardCollapsed && (
+            <>
+              <div className="poi-card-header">
+                <div>
+                  <h3 className="poi-card-title">{selectedDest.poi.name}</h3>
+                  <p className="poi-card-subtitle">
+                    {selectedDest.poi.category} · {selectedDest.poi.area}
+                  </p>
+                </div>
+                <button className="poi-card-close" onClick={() => setSelectedDestId(null)} aria-label="Close">
+                  ✕
+                </button>
+              </div>
 
-          <div className="poi-card-badges">
-            <span className={`poi-badge poi-badge-${getCrowdStatus(selectedDest.poi)}`}>
-              🧍 {CROWD_META[getCrowdStatus(selectedDest.poi)].badge}
-            </span>
-            <span className="poi-badge">🕒 {selectedDest.poi.hoursLabel}</span>
-          </div>
+              <div className="poi-card-badges">
+                <span className={`poi-badge poi-badge-${getCrowdStatus(selectedDest.poi)}`}>
+                  🧍 {CROWD_META[getCrowdStatus(selectedDest.poi)].badge}
+                </span>
+                <span className="poi-badge">🕒 {selectedDest.poi.hoursLabel}</span>
+              </div>
 
-          <div className="poi-card-rating">
-            ⭐ {selectedDest.poi.rating}{' '}
-            <span className="poi-card-reviews">({selectedDest.poi.reviewCount.toLocaleString()} reviews)</span>
-          </div>
+              <div className="poi-card-rating">
+                ⭐ {selectedDest.poi.rating}{' '}
+                <span className="poi-card-reviews">({selectedDest.poi.reviewCount.toLocaleString()} reviews)</span>
+              </div>
 
-          <div className="poi-tip">
-            <span className="poi-tip-icon">📍</span>
-            <div className="poi-tip-text">
-              <strong>{selectedDest.poi.tip.title}</strong>
-              <p>{selectedDest.poi.tip.body}</p>
-            </div>
-            <div className="poi-tip-photo" />
-          </div>
+              <div className="poi-tip">
+                <span className="poi-tip-icon">📍</span>
+                <div className="poi-tip-text">
+                  <strong>{selectedDest.poi.tip.title}</strong>
+                  <p>{selectedDest.poi.tip.body}</p>
+                </div>
+                <div className="poi-tip-photo" />
+              </div>
 
-          <div className="poi-card-actions">
-            <button className="poi-directions-btn" onClick={() => setSelectedDestId(null)}>
-              🧭 Change destination
-            </button>
-            <button
-              className={`poi-save-btn ${savedPoiIds.has(selectedDest.poi.id) ? 'saved' : ''}`}
-              onClick={() => toggleSave(selectedDest.poi.id)}
-            >
-              🔖 {savedPoiIds.has(selectedDest.poi.id) ? 'Saved' : 'Save'}
-            </button>
-          </div>
+              <div className="poi-card-actions">
+                <button className="poi-directions-btn" onClick={() => setSelectedDestId(null)}>
+                  🧭 Change destination
+                </button>
+                <button
+                  className={`poi-save-btn ${savedPoiIds.has(selectedDest.poi.id) ? 'saved' : ''}`}
+                  onClick={() => toggleSave(selectedDest.poi.id)}
+                >
+                  🔖 {savedPoiIds.has(selectedDest.poi.id) ? 'Saved' : 'Save'}
+                </button>
+              </div>
+            </>
+          )}
         </div>
       )}
 
