@@ -5,7 +5,7 @@ const TABS = [
   { id: 'stats', label: 'Stats', icon: '📊' }
 ];
 
-export default function NavBar({ active, onChange }) {
+export default function NavBar({ active, onChange, theme, onToggleTheme }) {
   return (
     <nav className="nav-bar">
       {TABS.map((tab) => (
@@ -18,6 +18,15 @@ export default function NavBar({ active, onChange }) {
           {tab.label}
         </button>
       ))}
+      <button
+        className="nav-theme-toggle"
+        onClick={onToggleTheme}
+        aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+        title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+      >
+        <span>{theme === 'dark' ? '☀️' : '🌙'}</span>
+        {theme === 'dark' ? 'Light' : 'Dark'}
+      </button>
     </nav>
   );
 }
