@@ -18,9 +18,9 @@ export const ROUTES = [
     co2SavedG: 480,
     path: [
       [museum.lat, museum.lng],
-      [1.135, 104.062],
-      [1.145, 104.078],
-      [1.155, 104.09],
+      [1.129, 104.03],
+      [1.13, 104.0345],
+      [1.1315, 104.037],
       [mangrove.lat, mangrove.lng]
     ]
   },
@@ -38,8 +38,7 @@ export const ROUTES = [
     co2SavedG: 200,
     path: [
       [museum.lat, museum.lng],
-      [1.14, 104.065],
-      [1.15, 104.085],
+      [1.1295, 104.0345],
       [mangrove.lat, mangrove.lng]
     ]
   },
@@ -57,9 +56,9 @@ export const ROUTES = [
     co2SavedG: 0,
     path: [
       [museum.lat, museum.lng],
-      [1.128, 104.055],
-      [1.135, 104.07],
-      [1.148, 104.088],
+      [1.126, 104.035],
+      [1.1315, 104.0365],
+      [1.1325, 104.04],
       [mangrove.lat, mangrove.lng]
     ]
   }
