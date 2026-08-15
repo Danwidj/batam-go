@@ -1,5 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
+import { MapContainer, TileLayer, Marker, ZoomControl } from 'react-leaflet';
+import { divIcon } from 'leaflet';
 import {
   INITIAL_POINTS_BALANCE,
   POINTS_RATE_LABEL,
@@ -270,45 +272,140 @@ function MyVouchersScreen({ myVouchers, earnedVouchers, onBack, onUse }) {
   );
 }
 
+function spotMarkerIcon(isSelected) {
+  const color = isSelected ? '#16a34a' : '#2563eb';
+  const size = isSelected ? 22 : 16;
+  return divIcon({
+    className: '',
+    html: `<div style="background:${color};width:${size}px;height:${size}px;border-radius:50%;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;color:white;font-size:10px;font-weight:bold;">${isSelected ? '🍽️' : ''}</div>`,
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2]
+  });
+}
+
+function userLocationIcon() {
+  return divIcon({
+    className: '',
+    html: `<div style="position:relative;width:24px;height:24px;display:flex;align-items:center;justify-content:center;">
+      <span style="position:absolute;width:100%;height:100%;border-radius:50%;background:#3b82f6;opacity:0.35;"></span>
+      <span style="position:relative;width:14px;height:14px;border-radius:50%;background:#2563eb;border:2px solid white;box-shadow:0 2px 5px rgba(0,0,0,0.4);"></span>
+    </div>`,
+    iconSize: [24, 24],
+    iconAnchor: [12, 12]
+  });
+}
+
 function UseFoodVoucherScreen({ voucher, onBack, onSelectSpot }) {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedSpotId, setSelectedSpotId] = useState(FOOD_SPOTS[0]?.id || 'bpk-chika');
+  const [userLocation, setUserLocation] = useState({ lat: 1.141, lng: 104.019, label: 'Your location (Batam)' });
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          // If browser location is in Batam bounds, use it; otherwise use default Batam location
+          const { latitude, longitude } = pos.coords;
+          if (latitude > 1.0 && latitude < 1.25 && longitude > 103.8 && longitude < 104.2) {
+            setUserLocation({ lat: latitude, lng: longitude, label: 'Your current location' });
+          }
+        },
+        () => {},
+        { timeout: 5000 }
+      );
+    }
+  }, []);
+
+  const filteredSpots = FOOD_SPOTS.filter(
+    (spot) =>
+      spot.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (spot.area && spot.area.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
+  const selectedSpot = FOOD_SPOTS.find((s) => s.id === selectedSpotId) || filteredSpots[0] || FOOD_SPOTS[0];
+  const center = selectedSpot ? [selectedSpot.lat, selectedSpot.lng] : [1.1385, 104.018];
+
   return (
-    <div className="shop-view">
+    <div className="shop-view use-voucher-view">
       <div className="shop-header-row">
         <button className="shop-back" onClick={onBack} aria-label="Back">
           ←
         </button>
         <div>
           <h1>Use Food Voucher</h1>
-          <p className="shop-subtitle">Find a participating food spot nearby</p>
+          <p className="shop-subtitle">Valid for Food & Beverage, 3km radius</p>
         </div>
       </div>
 
-      <div className="shop-voucher-chip">
-        <span className="shop-tier-icon">🔔</span>
-        <div>
-          <div className="shop-tier-kicker">FOOD VOUCHER</div>
-          <strong>{voucher.value}</strong>
-        </div>
-      </div>
-
-      <div className="shop-section-header">
-        <span>Nearby spots</span>
-      </div>
-
-      {FOOD_SPOTS.map((spot) => (
-        <div className="shop-spot-card" key={spot.id}>
-          <span className="shop-tier-icon">🔔</span>
-          <div className="voucher-info">
-            <strong>{spot.name}</strong>
-            <p>
-              ⭐ {spot.rating} · {spot.distanceKm} km · Voucher accepted
-            </p>
-          </div>
-          <button className="shop-tier-btn shop-use-btn" onClick={() => onSelectSpot(spot)}>
-            View food spot
+      <div className="shop-search-bar">
+        <span className="search-icon">🔍</span>
+        <input
+          type="text"
+          placeholder="Search food spots (e.g. BPK Chika)"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+        {searchQuery && (
+          <button className="clear-search-btn" onClick={() => setSearchQuery('')}>
+            ✕
           </button>
+        )}
+      </div>
+
+      <div className="voucher-map-container">
+        <div className="shop-voucher-floating-chip">
+          <span className="shop-tier-icon">🔔</span>
+          <div>
+            <div className="shop-tier-kicker">FOOD VOUCHER</div>
+            <strong>{voucher.value}</strong>
+          </div>
         </div>
-      ))}
+
+        <MapContainer
+          center={center}
+          zoom={14}
+          scrollWheelZoom
+          zoomControl={false}
+          style={{ height: '100%', width: '100%' }}
+        >
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+          <ZoomControl position="bottomright" />
+
+          {/* User Present Location Marker */}
+          <Marker position={[userLocation.lat, userLocation.lng]} icon={userLocationIcon()} />
+
+          {/* Food Spot Markers */}
+          {filteredSpots.map((spot) => (
+            <Marker
+              key={spot.id}
+              position={[spot.lat, spot.lng]}
+              icon={spotMarkerIcon(spot.id === selectedSpot?.id)}
+              eventHandlers={{ click: () => setSelectedSpotId(spot.id) }}
+            />
+          ))}
+        </MapContainer>
+
+        {selectedSpot && (
+          <div className="shop-floating-spot-card">
+            <div className="spot-card-handle" />
+            <div className="spot-card-body">
+              <div className="spot-card-info">
+                <h3>{selectedSpot.name}</h3>
+                <p className="spot-card-meta">
+                  ⭐ {selectedSpot.rating} · {selectedSpot.distanceKm} km · Voucher accepted
+                </p>
+                {selectedSpot.area && <p className="spot-card-area">📍 {selectedSpot.area}</p>}
+              </div>
+              <button className="shop-primary-btn shop-use-spot-btn" onClick={() => onSelectSpot(selectedSpot)}>
+                View food spot
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
