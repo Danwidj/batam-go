@@ -116,7 +116,8 @@ batam-go/
 │       │   ├── MapView.jsx  # Leaflet map, POI markers, route picker, Check-In button
 │       │   ├── Shop.jsx     # Voucher list with QR codes (renamed from Wallet.jsx)
 │       │   ├── Stats.jsx    # Activity + Rewards & Badges sub-views (matches Canva wireframe, in-screen toggle)
-│       │   └── NavBar.jsx   # Bottom tab bar (Home / Map / Shop / Stats)
+│       │   ├── NavBar.jsx   # Bottom tab bar (Home / Map / Shop / Stats)
+│       │   └── ConsentBanner.jsx # First-visit geolocation disclosure banner, dismiss flag in localStorage
 │       ├── data/
 │       │   ├── pois.js       # Museum/Mangrove coordinates + hardcoded crowd lookup
 │       │   ├── routes.js     # Hardcoded route polylines + CO₂/distance estimates
