@@ -565,22 +565,35 @@ body {
   border-radius: 16px;
   overflow: hidden;
   padding: 16px;
-  background: linear-gradient(160deg, #cfe8f3 0%, #a9d9b8 60%, #7fbf8f 100%);
+  background-color: #7fbf8f;
+  background-size: cover;
+  background-position: center;
   margin-bottom: 16px;
+}
+
+.home-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.15) 0%, rgba(0, 0, 0, 0.45) 100%);
+}
+
+.home-hero-title,
+.home-hero-art,
+.home-hero-btn {
+  position: relative;
 }
 
 .home-hero-title {
   font-size: 1.3rem;
   font-weight: 700;
-  color: #1b3a2b;
+  color: white;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
   margin-bottom: 12px;
 }
 
 .home-hero-art {
-  position: relative;
   height: 140px;
-  border-radius: 12px;
-  background: repeating-linear-gradient(45deg, rgba(255,255,255,0.15) 0 10px, rgba(255,255,255,0) 10px 20px);
 }
 
 .home-hero-pin {
@@ -612,22 +625,6 @@ body {
   background: white;
   font-weight: 600;
   font-size: 0.85rem;
-}
-
-.home-search {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 12px 16px;
-  border-radius: 12px;
-  background: #f2f2f0;
-  color: #777;
-  margin-bottom: 16px;
-}
-
-.home-search-filter {
-  flex-shrink: 0;
 }
 
 .home-steps-card {
@@ -693,6 +690,9 @@ body {
 }
 
 .home-see-all {
+  border: none;
+  background: none;
+  padding: 0;
   font-weight: 400;
   color: #2e7d32;
   font-size: 0.85rem;
@@ -711,8 +711,28 @@ body {
 .home-popular-photo {
   height: 100px;
   border-radius: 10px;
-  background: linear-gradient(135deg, #a9d9b8, #7fb4c9);
+  background-color: #a9d9b8;
+  background-size: cover;
+  background-position: center;
   margin-bottom: 6px;
+}
+
+.home-all-popular-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.home-all-popular-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.home-all-popular-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
 }
 
 .home-popular-name {
