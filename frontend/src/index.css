@@ -59,6 +59,11 @@ body {
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
+button {
+  font-family: inherit;
+  color: inherit;
+}
+
 .app-shell {
   display: flex;
   flex-direction: column;
@@ -253,6 +258,10 @@ body {
   font-size: 0.8rem;
 }
 
+.poi-tip-text strong {
+  color: #222222;
+}
+
 .poi-tip-text p {
   color: var(--color-text-muted);
   margin-top: 2px;
@@ -291,8 +300,8 @@ body {
 }
 
 .poi-save-btn.saved {
-  border-color: #2e7d32;
-  color: #2e7d32;
+  border-color: var(--color-accent-green);
+  color: var(--color-accent-green);
 }
 
 /* Route picker */
@@ -326,7 +335,7 @@ body {
 }
 
 .route-card.active {
-  background: #f7faf7;
+  background: var(--color-bg-tint);
 }
 
 .route-card-icon {
@@ -369,7 +378,7 @@ body {
 }
 
 .route-card-crowd-green {
-  color: #2e7d32;
+  color: var(--color-accent-green);
 }
 
 .route-card-crowd-orange {
@@ -383,7 +392,7 @@ body {
 .route-card-points {
   font-size: 0.8rem;
   font-weight: 600;
-  color: #2e7d32;
+  color: var(--color-accent-green);
   text-align: center;
   flex-shrink: 0;
 }
@@ -460,7 +469,7 @@ body {
 }
 
 .checkin-message.success {
-  color: #2e7d32;
+  color: var(--color-accent-green);
   font-weight: 600;
 }
 
@@ -513,7 +522,7 @@ body {
 
 .arrival-poi-name {
   font-weight: 600;
-  color: #333;
+  color: var(--color-text);
 }
 
 .arrival-desc {
@@ -557,7 +566,7 @@ body {
 
 .arrival-footnote {
   font-size: 0.75rem;
-  color: #999;
+  color: var(--color-text-muted);
   margin-top: 10px;
 }
 
@@ -738,7 +747,7 @@ body {
 
 .home-see-all {
   font-weight: 400;
-  color: #2e7d32;
+  color: var(--color-accent-green);
   font-size: 0.85rem;
 }
 
@@ -898,14 +907,14 @@ body {
 .stats-day-banner-steps strong {
   font-size: 1.1rem;
   font-weight: 800;
-  color: #2e7d32;
+  color: var(--color-accent-green);
 }
 
 .stats-day-banner-meta {
   display: flex;
   gap: 8px;
   font-size: 0.75rem;
-  color: #55705e;
+  color: var(--color-text-muted);
 }
 
 /* --- Chart Wrapper & Horizontal Grid Lines --- */
@@ -993,7 +1002,7 @@ body {
 }
 
 .stats-bar-val.selected {
-  color: #1b5e20;
+  color: var(--color-accent-green);
   font-weight: 800;
 }
 
@@ -1035,12 +1044,12 @@ body {
 }
 
 .stats-bar-day.is-today {
-  color: #2e7d32;
+  color: var(--color-accent-green);
   font-weight: 700;
 }
 
 .stats-bar-day.selected {
-  color: #1b5e20 !important;
+  color: var(--color-accent-green) !important;
   font-weight: 800 !important;
   text-decoration: underline;
   text-underline-offset: 3px;
@@ -1073,7 +1082,7 @@ body {
   background: transparent;
   font-size: 0.85rem;
   font-weight: 600;
-  color: #55705e;
+  color: var(--color-text-muted);
   transition: all 0.2s ease;
   cursor: pointer;
 }
@@ -1178,7 +1187,7 @@ body {
 
 .stats-ring-sub {
   font-size: 0.75rem;
-  color: #66826e;
+  color: var(--color-text-muted);
   margin-top: 2px;
 }
 
@@ -1293,7 +1302,7 @@ body {
 }
 
 .stats-bar-day.today {
-  color: #2e7d32;
+  color: var(--color-accent-green);
   font-weight: 800;
 }
 
@@ -1329,7 +1338,7 @@ body {
 
 .stats-eco-item small {
   font-size: 0.68rem;
-  color: #66826e;
+  color: var(--color-text-muted);
   margin-top: 2px;
   line-height: 1.2;
 }
@@ -1443,7 +1452,7 @@ body {
 .stats-goal-note {
   text-align: center;
   font-size: 0.82rem;
-  color: #55705e;
+  color: var(--color-text-muted);
   margin-top: 4px;
 }
 
@@ -1590,13 +1599,13 @@ body {
 .stats-badge-unlocked {
   font-size: 0.72rem;
   font-weight: 700;
-  color: #2e7d32;
+  color: var(--color-accent-green);
 }
 
 .stats-badge-locked {
   font-size: 0.72rem;
   font-weight: 600;
-  color: #4a6b82;
+  color: var(--color-text-muted);
 }
 
 .stats-badges-note-pill {
@@ -1771,7 +1780,7 @@ body {
 
 .shop-see-all {
   font-weight: 400;
-  color: #2e7d32;
+  color: var(--color-accent-green);
   font-size: 0.85rem;
 }
 
@@ -1824,7 +1833,7 @@ body {
 
 .shop-tier-points {
   font-size: 0.8rem;
-  color: #2e7d32;
+  color: var(--color-accent-green);
   font-weight: 600;
   margin-top: 6px;
 }
@@ -1878,7 +1887,7 @@ body {
   text-align: center;
   border: none;
   background: none;
-  color: #2e7d32;
+  color: var(--color-accent-green);
   font-weight: 600;
   padding: 10px;
 }
@@ -2098,7 +2107,7 @@ body {
 }
 
 .shop-modal-summary-highlight {
-  color: #2e7d32;
+  color: var(--color-accent-green);
   font-weight: 700;
 }
 
@@ -2207,7 +2216,7 @@ body {
   margin: 0 0 4px 0;
   font-size: 1rem;
   font-weight: 700;
-  color: #111;
+  color: var(--color-text);
 }
 
 .spot-card-meta {
@@ -2219,7 +2228,7 @@ body {
 .spot-card-area {
   margin: 0;
   font-size: 0.75rem;
-  color: #888;
+  color: var(--color-text-muted);
 }
 
 .shop-use-spot-btn {
@@ -2255,7 +2264,7 @@ body {
 }
 
 .nav-tab.active {
-  color: #2e7d32;
+  color: var(--color-accent-green);
   font-weight: 600;
 }
 
