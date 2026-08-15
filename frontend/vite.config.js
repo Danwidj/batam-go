@@ -9,9 +9,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
       manifest: {
-        short_name: 'HackApp',
-        name: 'Hackathon PWA App',
-        description: 'Instant Progressive Web App for Hackathon',
+        short_name: 'Batam Go',
+        name: 'Batam Go',
+        description: 'Sustainable-tourism PWA for Batam',
         icons: [
           {
             src: 'icon-192.png',
