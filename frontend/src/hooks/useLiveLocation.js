@@ -13,20 +13,26 @@ function isWithinBatamBounds(lat, lng) {
 }
 
 export function useLiveLocation() {
-  const [location, setLocation] = useState(DEFAULT_LOCATION);
+  const [location, setLocation] = useState({ ...DEFAULT_LOCATION, error: null });
 
   useEffect(() => {
     if (!navigator.geolocation) {
+      setLocation((prev) => ({ ...prev, error: 'unsupported' }));
       return undefined;
     }
     const watchId = navigator.geolocation.watchPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
         if (isWithinBatamBounds(latitude, longitude)) {
-          setLocation({ lat: latitude, lng: longitude, label: 'Your current location' });
+          setLocation({ lat: latitude, lng: longitude, label: 'Your current location', error: null });
         }
       },
-      () => {},
+      (err) => {
+        setLocation((prev) => ({
+          ...prev,
+          error: err.code === err.PERMISSION_DENIED ? 'permission-denied' : 'unavailable'
+        }));
+      },
       { enableHighAccuracy: true, timeout: 5000 }
     );
     return () => navigator.geolocation.clearWatch(watchId);

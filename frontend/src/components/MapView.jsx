@@ -43,7 +43,16 @@ export default function MapView({ onVoucherEarned }) {
 
   function handleCheckIn() {
     if (!selectedDest) return;
-    setCheckIn({ status: 'checking', message: 'Getting your location…' });
+    if (liveLocation.error) {
+      setCheckIn({
+        status: 'location-error',
+        message:
+          liveLocation.error === 'unsupported'
+            ? 'Geolocation is not supported on this device — check-in needs location access.'
+            : "Location permission is blocked — enable it in your browser settings to check in."
+      });
+      return;
+    }
     const distance = haversineDistanceMeters(
       liveLocation.lat,
       liveLocation.lng,
@@ -223,8 +232,8 @@ export default function MapView({ onVoucherEarned }) {
           <div className="checkin-summary">
             {selectedRoute.name} · {selectedRoute.distanceKm} km
           </div>
-          <button className="checkin-btn" onClick={handleCheckIn} disabled={checkIn.status === 'checking'}>
-            {checkIn.status === 'checking' ? 'Checking in…' : `📍 Check In at ${selectedDest.poi.name}`}
+          <button className="checkin-btn" onClick={handleCheckIn}>
+            📍 Check In at {selectedDest.poi.name}
           </button>
           {checkIn.message && checkIn.status !== 'success' && (
             <p className={`checkin-message ${checkIn.status}`}>{checkIn.message}</p>
