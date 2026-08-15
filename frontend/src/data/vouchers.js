@@ -35,11 +35,12 @@ export const INITIAL_MY_VOUCHERS = [
   { id: 'mv-stay-50k', tierId: 'stay-50k', categoryId: 'stay', value: 'Rp50.000', pointsCost: 5000, quantity: 1, expires: 'Expires 31 Oct' }
 ];
 
-// "Use Food Voucher" — participating local eateries near the visitor with geo coordinates
+// "Use Food Voucher" — participating local eateries near the visitor in Batam
 export const FOOD_SPOTS = [
-  { id: 'harbour-seafood', name: 'Harbour Seafood', rating: 4.8, distanceKm: 1.2, lat: -0.908, lng: 104.455, area: 'Harbour Bay' },
-  { id: 'nagoya-food-corner', name: 'Nagoya Food Corner', rating: 4.7, distanceKm: 1.8, lat: -0.915, lng: 104.442, area: 'Nagoya' },
-  { id: 'batam-kopitiam', name: 'Batam Kopitiam', rating: 4.6, distanceKm: 2.1, lat: -0.904, lng: 104.462, area: 'Batam Centre' },
-  { id: 'golden-prawn-kitchen', name: 'Golden Prawn Kitchen', rating: 4.5, distanceKm: 2.6, lat: -0.922, lng: 104.47, area: 'Bengkong' }
+  { id: 'bpk-chika', name: 'BPK Chika', rating: 4.9, distanceKm: 0.8, lat: 1.1385, lng: 104.018, area: 'Komp. 91 Square, Lubuk Baja' },
+  { id: 'harbour-seafood', name: 'Harbour Seafood', rating: 4.8, distanceKm: 1.2, lat: 1.151, lng: 104.005, area: 'Harbour Bay' },
+  { id: 'nagoya-food-corner', name: 'Nagoya Food Corner', rating: 4.7, distanceKm: 1.8, lat: 1.139, lng: 104.015, area: 'Nagoya' },
+  { id: 'batam-kopitiam', name: 'Batam Kopitiam', rating: 4.6, distanceKm: 2.1, lat: 1.131, lng: 104.052, area: 'Batam Centre' },
+  { id: 'golden-prawn-kitchen', name: 'Golden Prawn Kitchen', rating: 4.5, distanceKm: 2.6, lat: 1.155, lng: 104.032, area: 'Bengkong' }
 ];
 

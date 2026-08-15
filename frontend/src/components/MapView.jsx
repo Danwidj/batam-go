@@ -7,7 +7,7 @@ import { haversineDistanceMeters } from '../utils/geo.js';
 
 const CHECK_IN_RADIUS_M = 300;
 const CHECK_IN_POI_ID = 'mangrove';
-const CENTER = [-0.913, 104.465];
+const CENTER = [1.1385, 104.035];
 
 function crowdIcon(status) {
   const color = CROWD_META[status].color;

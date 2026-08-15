@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { MapContainer, TileLayer, Marker, ZoomControl } from 'react-leaflet';
 import { divIcon } from 'leaflet';
@@ -283,9 +283,38 @@ function spotMarkerIcon(isSelected) {
   });
 }
 
+function userLocationIcon() {
+  return divIcon({
+    className: '',
+    html: `<div style="position:relative;width:24px;height:24px;display:flex;align-items:center;justify-content:center;">
+      <span style="position:absolute;width:100%;height:100%;border-radius:50%;background:#3b82f6;opacity:0.35;"></span>
+      <span style="position:relative;width:14px;height:14px;border-radius:50%;background:#2563eb;border:2px solid white;box-shadow:0 2px 5px rgba(0,0,0,0.4);"></span>
+    </div>`,
+    iconSize: [24, 24],
+    iconAnchor: [12, 12]
+  });
+}
+
 function UseFoodVoucherScreen({ voucher, onBack, onSelectSpot }) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedSpotId, setSelectedSpotId] = useState(FOOD_SPOTS[0]?.id || null);
+  const [selectedSpotId, setSelectedSpotId] = useState(FOOD_SPOTS[0]?.id || 'bpk-chika');
+  const [userLocation, setUserLocation] = useState({ lat: 1.141, lng: 104.019, label: 'Your location (Batam)' });
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          // If browser location is in Batam bounds, use it; otherwise use default Batam location
+          const { latitude, longitude } = pos.coords;
+          if (latitude > 1.0 && latitude < 1.25 && longitude > 103.8 && longitude < 104.2) {
+            setUserLocation({ lat: latitude, lng: longitude, label: 'Your current location' });
+          }
+        },
+        () => {},
+        { timeout: 5000 }
+      );
+    }
+  }, []);
 
   const filteredSpots = FOOD_SPOTS.filter(
     (spot) =>
@@ -294,7 +323,7 @@ function UseFoodVoucherScreen({ voucher, onBack, onSelectSpot }) {
   );
 
   const selectedSpot = FOOD_SPOTS.find((s) => s.id === selectedSpotId) || filteredSpots[0] || FOOD_SPOTS[0];
-  const center = selectedSpot ? [selectedSpot.lat, selectedSpot.lng] : [-0.912, 104.458];
+  const center = selectedSpot ? [selectedSpot.lat, selectedSpot.lng] : [1.1385, 104.018];
 
   return (
     <div className="shop-view use-voucher-view">
@@ -312,7 +341,7 @@ function UseFoodVoucherScreen({ voucher, onBack, onSelectSpot }) {
         <span className="search-icon">🔍</span>
         <input
           type="text"
-          placeholder="Search food spots"
+          placeholder="Search food spots (e.g. BPK Chika)"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
@@ -334,7 +363,7 @@ function UseFoodVoucherScreen({ voucher, onBack, onSelectSpot }) {
 
         <MapContainer
           center={center}
-          zoom={13}
+          zoom={14}
           scrollWheelZoom
           zoomControl={false}
           style={{ height: '100%', width: '100%' }}
@@ -344,6 +373,11 @@ function UseFoodVoucherScreen({ voucher, onBack, onSelectSpot }) {
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
           <ZoomControl position="bottomright" />
+
+          {/* User Present Location Marker */}
+          <Marker position={[userLocation.lat, userLocation.lng]} icon={userLocationIcon()} />
+
+          {/* Food Spot Markers */}
           {filteredSpots.map((spot) => (
             <Marker
               key={spot.id}
