@@ -77,6 +77,7 @@ The user opens the "Shop" tab, which shows the active discount voucher linked to
 - **Client-side QR codes**: [`qrcode.react`](https://www.npmjs.com/package/qrcode.react) renders voucher QR codes with zero network calls.
 - **Simulated-walk check-in**: a "Start walking" control animates a marker along the selected route's path (no real device GPS) so the demo works without being physically in Batam; Check-In distance is computed against that simulated position.
 - **No UI component library**: plain React + hand-written CSS (`index.css`). Framework7-React was tried and reverted — see "UI Library Decision" below before reaching for it again.
+- **Dark mode**: a nav-bar toggle switches the whole app shell between light/dark, persists the choice in `localStorage`, and defaults to the OS `prefers-color-scheme` on first load. See `frontend/src/utils/theme.js` and the theming note in `AGENTS.md`.
 
 ### 🔌 API Reference
 
