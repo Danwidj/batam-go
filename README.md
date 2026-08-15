@@ -78,6 +78,16 @@ The user opens the "Shop" tab, which shows the active discount voucher linked to
 - **Geolocation check-in**: native `navigator.geolocation` (no library, no key) — foreground-only by design, since background GPS isn't reliably supported for PWAs on iOS Safari.
 - **No UI component library**: plain React + hand-written CSS (`index.css`). Framework7-React was tried and reverted — see "UI Library Decision" below before reaching for it again.
 
+### 🔌 API Reference
+
+The Express backend currently exposes one route:
+
+| Method | Path | Purpose |
+|---|---|---|
+| `GET` | `/api/health` | Liveness check — returns `{ status: "ok", message: "Unified JS Backend Running!" }`. Useful for confirming the unified server is up before pointing ngrok/mobile devices at it. |
+
+Everything else the frontend needs (POIs, routes, vouchers, home/stats data) is bundled client-side as static JS modules under `frontend/src/data/` — there is no database and no other backend route yet. Adding a real data-backed API is future work.
+
 ### ⚠️ UI Library Decision
 
 Framework7-React was tried for the nav bar / list / card components and **caused a hard app-breaking bug**: `TypeError: Cannot read properties of undefined (reading 'once')`, thrown on every component due to a Framework7-React initialization-order issue (child component effects fire before the `<App>` wrapper finishes creating its internal core instance — a known issue reported on the Framework7 forum, not fixed by downgrading versions). We reverted to plain hand-rolled components, which work reliably. **Don't re-add `framework7`/`framework7-react`.** If a component library is wanted later, Konsta UI (Tailwind-based, purely presentational, no imperative core instance) is a safer bet than Framework7 — untested here, but architecturally shouldn't hit the same bug class.
@@ -87,7 +97,7 @@ Framework7-React was tried for the nav bar / list / card components and **caused
 ## 📂 Repository Structure
 
 ```text
-testing-123/
+batam-go/
 ├── package.json             # Root orchestrator (Express dependencies & build scripts)
 ├── server.js                # Express backend (API routes + static PWA server)
 ├── .gitignore                # Excludes node_modules, dist, .env, and .DS_Store
@@ -152,7 +162,7 @@ For rapid UI iteration with hot module replacement (HMR):
 ```bash
 npm run dev
 ```
-> *API requests to `/api/*` are automatically proxied to the Express backend on port 5050.*
+> *Vite serves the frontend on **`http://localhost:3000`** (see `frontend/vite.config.js`) and proxies `/api/*` requests through to the Express backend on port 5050 — so the Express server must also be running (`npm start` in another terminal, or the built server from step 2) for API calls to resolve during frontend-only dev.*
 
 ---
 
@@ -175,6 +185,13 @@ Hot reload (`npm run dev`) is **local-only** — it's for solo iteration on your
 So the split is:
 - **Just for me, while coding:** `npm run dev` (HMR, fast iteration, not shared)
 - **To share with teammates or test on phones:** `npm run build` + `ngrok http 5050` (static build, works over the public internet regardless of local network restrictions)
+
+---
+
+## ⚠️ Known Rough Edges
+
+- **`server.js`'s "not built yet" fallback message references a `npm run quick-build` script that does not exist** in `package.json` — only `build-frontend`, `build`, `dev`, and `start` are defined. If you see "Frontend not built yet. Run ..." in the browser, run `npm run build` instead.
+- **The PWA manifest is still generic hackathon branding**: `frontend/vite.config.js`'s `VitePWA` config sets `short_name: 'HackApp'` and `name: 'Hackathon PWA App'`, not anything Batam/Sustainable-Tourism-themed. Cosmetic — worth updating before this is shown to anyone outside the team, since it's what appears on a phone's home screen after "Add to Home Screen."
 
 ---
 
