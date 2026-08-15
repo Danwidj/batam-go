@@ -1,0 +1,17 @@
+{
+  "name": "hackathon-unified-js",
+  "version": "1.0.0",
+  "description": "Unified JS Monorepo - Express Backend + Vite PWA Frontend",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "build-frontend": "cd frontend && npm install && npm run build",
+    "build": "npm run build-frontend && npm start",
+    "dev": "cd frontend && npm run dev"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "cors": "^2.8.5"
+  }
+}
