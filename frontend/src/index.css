@@ -15,6 +15,7 @@
   --color-shadow: rgba(0, 0, 0, 0.08);
   --color-bg-tint: #f4faf5;
   --color-border-tint: #d7ebd9;
+  --color-accent-green: #2e7d32;
 }
 
 :root[data-theme="dark"] {
@@ -28,6 +29,7 @@
   --color-shadow: rgba(0, 0, 0, 0.4);
   --color-bg-tint: #182019;
   --color-border-tint: #2a3d2c;
+  --color-accent-green: #81c784;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -787,7 +789,7 @@ body {
 .stats-profile-badge {
   font-size: 0.68rem;
   font-weight: 600;
-  color: #2e7d32;
+  color: var(--color-accent-green);
   background: var(--color-bg-elevated);
   padding: 2px 8px;
   border-radius: 999px;
@@ -1374,7 +1376,7 @@ body {
 }
 
 .stats-credit-check {
-  background: var(--color-bg-elevated);
+  background: white;
   color: #1b5e20;
   width: 16px;
   height: 16px;
@@ -1425,7 +1427,7 @@ body {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: #f0f4f1;
+  background: var(--color-bg-subtle);
   border: 2px solid #c8e6c9;
   display: flex;
   align-items: center;
@@ -1567,7 +1569,7 @@ body {
   padding: 8px 16px;
   font-size: 0.78rem;
   font-weight: 600;
-  color: #2e7d32;
+  color: var(--color-accent-green);
   text-align: center;
 }
 
