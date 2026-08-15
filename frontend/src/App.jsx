@@ -29,12 +29,14 @@ export default function App() {
     <div className="app-shell">
       <ConsentBanner />
       <div className="app-content">
-        {tab === 'home' && <Home />}
-        {tab === 'map' && <MapView onVoucherEarned={handleVoucherEarned} />}
-        {tab === 'shop' && <Shop vouchers={vouchers} />}
-        {tab === 'stats' && <Stats />}
+        <div key={tab} className="tab-pane">
+          {tab === 'home' && <Home theme={theme} onToggleTheme={toggleTheme} onNavigate={setTab} />}
+          {tab === 'map' && <MapView onVoucherEarned={handleVoucherEarned} />}
+          {tab === 'shop' && <Shop vouchers={vouchers} />}
+          {tab === 'stats' && <Stats />}
+        </div>
       </div>
-      <NavBar active={tab} onChange={setTab} theme={theme} onToggleTheme={toggleTheme} />
+      <NavBar active={tab} onChange={setTab} />
     </div>
   );
 }

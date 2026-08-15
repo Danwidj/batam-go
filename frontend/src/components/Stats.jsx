@@ -10,6 +10,7 @@ function formatMinutes(totalMinutes) {
 }
 
 function formatThousands(value) {
+  if (!value || value === 0) return '0';
   return `${Math.round(value / 1000)}K`;
 }
 
@@ -18,7 +19,11 @@ function ProfileHeader() {
     <div className="stats-profile-header">
       <div className="stats-profile-info">
         <div className="stats-profile-avatar">
-          {USER.name ? USER.name.charAt(0) : 'J'}
+          {USER.avatar ? (
+            <img src={USER.avatar} alt={USER.name} className="stats-profile-avatar-img" />
+          ) : (
+            USER.name ? USER.name.charAt(0) : 'J'
+          )}
         </div>
         <div className="stats-profile-details">
           <div className="stats-profile-greeting">Hello, {USER.name || 'Explorer'} 👋</div>
@@ -81,20 +86,19 @@ function StepsRing({ current, goal, pctLabel }) {
 
 function ActivityView({ period, onPeriodChange }) {
   const defaultTodayIndex = WEEKLY_STEPS.days.findIndex((d) => d.isToday);
-  const [selectedDayIndex, setSelectedDayIndex] = useState(defaultTodayIndex >= 0 ? defaultTodayIndex : 2);
+  const [selectedDayIndex, setSelectedDayIndex] = useState(defaultTodayIndex >= 0 ? defaultTodayIndex : 3);
 
   const source = period === 'daily' ? STEPS : WEEKLY_STEPS;
   const rewardPct = Math.min(100, Math.round((STEPS.current / STEPS.goal) * 100));
 
-  // Determine chart scale with grid step lines (11K, 9K, 8K, 7K, 5K, 3K, 0)
+  // Determine chart scale with consistent, equal 2K / 20% intervals
   const chartMaxScale = 10000;
   const gridTicks = [
-    { label: '11K', topPct: 0 },
-    { label: '9K', topPct: 10 },
+    { label: '10K', topPct: 0 },
     { label: '8K', topPct: 20 },
-    { label: '7K', topPct: 30 },
-    { label: '5K', topPct: 50 },
-    { label: '3K', topPct: 70 },
+    { label: '6K', topPct: 40 },
+    { label: '4K', topPct: 60 },
+    { label: '2K', topPct: 80 },
     { label: '0', topPct: 100 }
   ];
 
@@ -168,7 +172,7 @@ function ActivityView({ period, onPeriodChange }) {
           </div>
         </div>
 
-        {/* Bar Chart Container with Wireframe Y-Axis Tick Alignment (10K, 8K, 5K, 3K, 0) */}
+        {/* Bar Chart Container with Evenly Spaced Y-Axis (10K, 8K, 6K, 4K, 2K, 0) */}
         <div className="stats-chart-wrapper">
           <div className="stats-y-axis">
             {gridTicks.map((tick) => (
@@ -196,7 +200,7 @@ function ActivityView({ period, onPeriodChange }) {
             <div className="stats-bars">
               {WEEKLY_STEPS.days.map((d, i) => {
                 const isSelected = i === selectedDayIndex;
-                const fillPct = Math.min(100, Math.max(2, (d.steps / chartMaxScale) * 100));
+                const fillPct = d.steps === 0 ? 0 : Math.min(100, Math.max(3, (d.steps / chartMaxScale) * 100));
 
                 return (
                   <div

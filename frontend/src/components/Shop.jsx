@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
-import { MapContainer, TileLayer, Marker, ZoomControl } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, ZoomControl, useMap } from 'react-leaflet';
 import { divIcon } from 'leaflet';
+import { LazyMotion, domAnimation, m, AnimatePresence } from 'framer-motion';
 import {
   INITIAL_POINTS_BALANCE,
   POINTS_RATE_LABEL,
@@ -23,6 +24,21 @@ function categoryById(id) {
   return VOUCHER_CATEGORIES.find((c) => c.id === id);
 }
 
+const screenVariants = {
+  enter: (direction) => ({
+    x: direction > 0 ? '100%' : '-100%',
+    opacity: 0
+  }),
+  center: {
+    x: 0,
+    opacity: 1
+  },
+  exit: (direction) => ({
+    x: direction > 0 ? '-100%' : '100%',
+    opacity: 0
+  })
+};
+
 function RedeemModal({ tier, pointsBalance, quantity, onQuantityChange, onClose, onConfirm }) {
   const maxQty = maxRedeemableQuantity(pointsBalance, tier.pointsCost);
   const required = pointsRequired(tier.pointsCost, quantity);
@@ -30,8 +46,23 @@ function RedeemModal({ tier, pointsBalance, quantity, onQuantityChange, onClose,
   const category = categoryById(tier.categoryId);
 
   return (
-    <div className="shop-modal-backdrop">
-      <div className="shop-modal">
+    <m.div
+      className="shop-modal-backdrop"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <m.div
+        className="shop-modal"
+        initial={{ opacity: 0, scale: 0.9, y: 16 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.92, y: 12 }}
+        transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+      >
         <button className="shop-modal-close" onClick={onClose} aria-label="Close">
           ✕
         </button>
@@ -97,8 +128,8 @@ function RedeemModal({ tier, pointsBalance, quantity, onQuantityChange, onClose,
           Redeem {quantity} voucher{quantity === 1 ? '' : 's'}
         </button>
         <p className="shop-modal-footnote">The digital voucher will appear in My Rewards.</p>
-      </div>
-    </div>
+      </m.div>
+    </m.div>
   );
 }
 
@@ -195,14 +226,15 @@ function MyVouchersScreen({ myVouchers, earnedVouchers, onBack, onUse }) {
 
   return (
     <div className="shop-view">
-      <div className="shop-header-row">
+      <div className="shop-header-row shop-header-centered">
         <button className="shop-back" onClick={onBack} aria-label="Back">
           ←
         </button>
-        <div>
+        <div className="shop-header-text">
           <h1>My Vouchers</h1>
           <p className="shop-subtitle">{totalCount} vouchers ready to use</p>
         </div>
+        <div className="shop-header-spacer" />
       </div>
 
       <div className="shop-current-vouchers-card">
@@ -295,8 +327,23 @@ function userLocationIcon() {
   });
 }
 
+function MapAutoResize() {
+  const map = useMap();
+  useEffect(() => {
+    map.invalidateSize();
+    const t1 = setTimeout(() => map.invalidateSize(), 100);
+    const t2 = setTimeout(() => map.invalidateSize(), 350);
+    const t3 = setTimeout(() => map.invalidateSize(), 600);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
+  }, [map]);
+  return null;
+}
+
 function UseFoodVoucherScreen({ voucher, onBack, onSelectSpot }) {
-  const [searchQuery, setSearchQuery] = useState('');
   const [selectedSpotId, setSelectedSpotId] = useState(FOOD_SPOTS[0]?.id || 'bpk-chika');
   const [userLocation, setUserLocation] = useState({ lat: 1.141, lng: 104.019, label: 'Your location (Batam)' });
 
@@ -310,46 +357,26 @@ function UseFoodVoucherScreen({ voucher, onBack, onSelectSpot }) {
             setUserLocation({ lat: latitude, lng: longitude, label: 'Your current location' });
           }
         },
-        () => {},
+        () => { },
         { timeout: 5000 }
       );
     }
   }, []);
 
-  const filteredSpots = FOOD_SPOTS.filter(
-    (spot) =>
-      spot.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (spot.area && spot.area.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
-
-  const selectedSpot = FOOD_SPOTS.find((s) => s.id === selectedSpotId) || filteredSpots[0] || FOOD_SPOTS[0];
+  const selectedSpot = FOOD_SPOTS.find((s) => s.id === selectedSpotId) || FOOD_SPOTS[0];
   const center = selectedSpot ? [selectedSpot.lat, selectedSpot.lng] : [1.1385, 104.018];
 
   return (
     <div className="shop-view use-voucher-view">
-      <div className="shop-header-row">
+      <div className="shop-header-row shop-header-centered">
         <button className="shop-back" onClick={onBack} aria-label="Back">
           ←
         </button>
-        <div>
+        <div className="shop-header-text">
           <h1>Use Food Voucher</h1>
           <p className="shop-subtitle">Valid for Food & Beverage, 3km radius</p>
         </div>
-      </div>
-
-      <div className="shop-search-bar">
-        <span className="search-icon">🔍</span>
-        <input
-          type="text"
-          placeholder="Search food spots (e.g. BPK Chika)"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-        {searchQuery && (
-          <button className="clear-search-btn" onClick={() => setSearchQuery('')}>
-            ✕
-          </button>
-        )}
+        <div className="shop-header-spacer" />
       </div>
 
       <div className="voucher-map-container">
@@ -368,6 +395,7 @@ function UseFoodVoucherScreen({ voucher, onBack, onSelectSpot }) {
           zoomControl={false}
           style={{ height: '100%', width: '100%' }}
         >
+          <MapAutoResize />
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -378,7 +406,7 @@ function UseFoodVoucherScreen({ voucher, onBack, onSelectSpot }) {
           <Marker position={[userLocation.lat, userLocation.lng]} icon={userLocationIcon()} />
 
           {/* Food Spot Markers */}
-          {filteredSpots.map((spot) => (
+          {FOOD_SPOTS.map((spot) => (
             <Marker
               key={spot.id}
               position={[spot.lat, spot.lng]}
@@ -413,11 +441,14 @@ function UseFoodVoucherScreen({ voucher, onBack, onSelectSpot }) {
 function VoucherQRScreen({ label, code, onDone }) {
   return (
     <div className="shop-view">
-      <div className="shop-header-row">
+      <div className="shop-header-row shop-header-centered">
         <button className="shop-back" onClick={onDone} aria-label="Back">
           ←
         </button>
-        <h1>Your Voucher</h1>
+        <div className="shop-header-text">
+          <h1>Your Voucher</h1>
+        </div>
+        <div className="shop-header-spacer" />
       </div>
       <div className="shop-qr-card">
         <p className="shop-qr-label">{label}</p>
@@ -433,6 +464,7 @@ function VoucherQRScreen({ label, code, onDone }) {
 
 export default function Shop({ vouchers }) {
   const [screen, setScreen] = useState('shop'); // 'shop' | 'myVouchers' | 'useVoucher'
+  const [direction, setDirection] = useState(1);
   const [activeCategory, setActiveCategory] = useState('food');
   const [pointsBalance, setPointsBalance] = useState(INITIAL_POINTS_BALANCE);
   const [myVouchers, setMyVouchers] = useState(INITIAL_MY_VOUCHERS);
@@ -458,10 +490,12 @@ export default function Shop({ vouchers }) {
   function useVoucher(voucher) {
     if (voucher.categoryId === 'food') {
       setUseVoucherId(voucher.id);
+      setDirection(1);
       setScreen('useVoucher');
       return;
     }
     setMyVouchers((prev) => consumeOneVoucher(prev, voucher.id));
+    setDirection(1);
     setRedeemedQR({
       label: `${voucher.value} voucher`,
       code: `REWARD-${voucher.tierId}-DIRECT-${voucher.id}`
@@ -470,6 +504,7 @@ export default function Shop({ vouchers }) {
 
   function selectSpot(spot) {
     setMyVouchers((prev) => consumeOneVoucher(prev, activeUseVoucher.id));
+    setDirection(1);
     setRedeemedQR({
       label: `${activeUseVoucher.value} voucher — ${spot.name}`,
       code: `REWARD-${activeUseVoucher.tierId}-${spot.id}`
@@ -477,56 +512,87 @@ export default function Shop({ vouchers }) {
   }
 
   function closeQR() {
+    setDirection(-1);
     setRedeemedQR(null);
     setUseVoucherId(null);
     setScreen('myVouchers');
   }
 
-  if (redeemedQR) {
-    return <VoucherQRScreen label={redeemedQR.label} code={redeemedQR.code} onDone={closeQR} />;
-  }
-
-  if (screen === 'useVoucher' && activeUseVoucher) {
-    return (
-      <UseFoodVoucherScreen
-        voucher={activeUseVoucher}
-        onBack={() => setScreen('myVouchers')}
-        onSelectSpot={selectSpot}
-      />
-    );
-  }
-
-  if (screen === 'myVouchers') {
-    return (
-      <MyVouchersScreen
-        myVouchers={myVouchers}
-        earnedVouchers={vouchers}
-        onBack={() => setScreen('shop')}
-        onUse={useVoucher}
-      />
-    );
-  }
+  const currentKey = redeemedQR
+    ? 'qr'
+    : screen === 'useVoucher' && activeUseVoucher
+      ? 'useVoucher'
+      : screen === 'myVouchers'
+        ? 'myVouchers'
+        : 'shop';
 
   return (
-    <>
-      <RewardsShopScreen
-        pointsBalance={pointsBalance}
-        activeCategory={activeCategory}
-        onCategoryChange={setActiveCategory}
-        myVoucherCount={myVoucherCount}
-        onOpenMyVouchers={() => setScreen('myVouchers')}
-        onRedeem={openRedeemModal}
-      />
-      {redeemTier && (
-        <RedeemModal
-          tier={redeemTier}
-          pointsBalance={pointsBalance}
-          quantity={quantity}
-          onQuantityChange={setQuantity}
-          onClose={() => setRedeemTier(null)}
-          onConfirm={confirmRedeem}
-        />
-      )}
-    </>
+    <LazyMotion features={domAnimation}>
+      <div className="shop-stack-container">
+        <AnimatePresence mode="popLayout" custom={direction} initial={false}>
+          <m.div
+            key={currentKey}
+            custom={direction}
+            variants={screenVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
+            className="shop-screen-pane"
+          >
+            {currentKey === 'qr' && (
+              <VoucherQRScreen label={redeemedQR.label} code={redeemedQR.code} onDone={closeQR} />
+            )}
+            {currentKey === 'useVoucher' && activeUseVoucher && (
+              <UseFoodVoucherScreen
+                voucher={activeUseVoucher}
+                onBack={() => {
+                  setDirection(-1);
+                  setScreen('myVouchers');
+                }}
+                onSelectSpot={selectSpot}
+              />
+            )}
+            {currentKey === 'myVouchers' && (
+              <MyVouchersScreen
+                myVouchers={myVouchers}
+                earnedVouchers={vouchers}
+                onBack={() => {
+                  setDirection(-1);
+                  setScreen('shop');
+                }}
+                onUse={useVoucher}
+              />
+            )}
+            {currentKey === 'shop' && (
+              <RewardsShopScreen
+                pointsBalance={pointsBalance}
+                activeCategory={activeCategory}
+                onCategoryChange={setActiveCategory}
+                myVoucherCount={myVoucherCount}
+                onOpenMyVouchers={() => {
+                  setDirection(1);
+                  setScreen('myVouchers');
+                }}
+                onRedeem={openRedeemModal}
+              />
+            )}
+          </m.div>
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {redeemTier && (
+            <RedeemModal
+              tier={redeemTier}
+              pointsBalance={pointsBalance}
+              quantity={quantity}
+              onQuantityChange={setQuantity}
+              onClose={() => setRedeemTier(null)}
+              onConfirm={confirmRedeem}
+            />
+          )}
+        </AnimatePresence>
+      </div>
+    </LazyMotion>
   );
 }

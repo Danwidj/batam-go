@@ -1,5 +1,6 @@
 export const USER = {
   name: 'Juliana',
+  avatar: '/assets/user-avatar.jpg',
   hasNotification: true
 };
 
@@ -28,19 +29,19 @@ export const MAP_PINS = [
 ];
 
 export const WEEKLY_STEPS = {
-  current: 53000,
+  current: 32000,
   goal: 70000,
-  distanceKm: 41.6,
-  activeMinutes: 612,
+  distanceKm: 24.0,
+  activeMinutes: 368,
   changePct: 12,
   days: [
     { day: 'M', steps: 7000 },
     { day: 'T', steps: 8000 },
-    { day: 'W', steps: 9000, isToday: true },
-    { day: 'T', steps: 8000 },
-    { day: 'F', steps: 8000 },
-    { day: 'S', steps: 7000 },
-    { day: 'S', steps: 6000 }
+    { day: 'W', steps: 9000 },
+    { day: 'T', steps: 8000, isToday: true },
+    { day: 'F', steps: 0 },
+    { day: 'S', steps: 0 },
+    { day: 'S', steps: 0 }
   ]
 };
 

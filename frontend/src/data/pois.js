@@ -1,20 +1,38 @@
 export const POIS = [
   {
+    id: 'welcome-batam',
+    name: 'Welcome to Batam Monument',
+    category: 'Landmark',
+    area: 'Bukit Clara, Teluk Tering',
+    description: 'Iconic hilltop monument overlooking Batam Centre. Popular in the evenings with a local culinary market.',
+    lat: 1.1215,
+    lng: 104.0487,
+    hoursLabel: 'Open 24 hours',
+    rating: 4.5,
+    reviewCount: 3820,
+    tip: {
+      title: 'Best time to visit',
+      body: 'Come in the evening for the culinary night market and city views.'
+    },
+    crowdByHour: () => 'red'
+  },
+
+  {
     id: 'museum',
-    name: 'History Museum',
+    name: 'Museum Batam Raja Ali Haji',
     category: 'Museum',
     area: 'Batam Centre',
     description: 'Quiet in the mornings, always worth an hour.',
-    lat: 1.1275,
-    lng: 104.032,
+    lat: 1.12951,
+    lng: 104.05367,
     hoursLabel: 'Open today 09:00–17:00',
     rating: 4.3,
     reviewCount: 1204,
     tip: {
       title: 'Best time to visit',
-      body: 'Weekday mornings are quietest.'
+      body: 'Weekday afternoons are moderately busy.'
     },
-    crowdByHour: () => 'green'
+    crowdByHour: () => 'orange'
   },
   {
     id: 'mangrove',
@@ -31,7 +49,7 @@ export const POIS = [
       title: 'Best time to visit',
       body: 'After 12 PM once the tour buses clear out.'
     },
-    crowdByHour: (hour) => (hour >= 6 && hour < 12 ? 'red' : 'green'),
+    crowdByHour: () => 'orange',
     voucher: {
       business: 'Kedai Kopi Akar',
       offer: '15% off any drink',
@@ -39,21 +57,38 @@ export const POIS = [
     }
   },
   {
+    id: 'ferry-batam-centre',
+    name: 'Batam Centre Ferry Terminal',
+    category: 'Ferry terminal',
+    area: 'Batam Centre',
+    description: 'Main international ferry hub connecting Batam to Singapore and Malaysia.',
+    lat: 1.1307,
+    lng: 104.0552,
+    hoursLabel: 'Open today 07:00–21:00',
+    rating: 4.0,
+    reviewCount: 5820,
+    tip: {
+      title: 'Travel tip',
+      body: 'Arrive at least 30 minutes early for immigration clearance.'
+    },
+    crowdByHour: () => 'orange'
+  },
+  {
     id: 'mall',
     name: 'Mega Mall Batam Centre',
     category: 'Shopping mall',
     area: 'Batam Centre',
-    description: 'Air-conditioned break with a food court and shops.',
-    lat: 1.1295,
-    lng: 104.03,
+    description: 'Air-conditioned break with a food court and shops. Connected to the ferry terminal via a covered pedestrian bridge.',
+    lat: 1.12924,
+    lng: 104.05598,
     hoursLabel: 'Open today 10:00–22:00',
     rating: 4.2,
     reviewCount: 3150,
     tip: {
       title: 'Best time to visit',
-      body: 'Weekday afternoons, before the evening rush.'
+      body: 'Pleasantly uncrowded throughout the morning and afternoon.'
     },
-    crowdByHour: () => 'orange'
+    crowdByHour: () => 'green'
   }
 ];
 

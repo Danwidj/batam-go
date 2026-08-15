@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { USER, STEPS, POPULAR, MAP_PINS, HERO_IMAGE } from '../data/home-mock.js';
+import { USER, STEPS, POPULAR, HERO_IMAGE } from '../data/home-mock.js';
 
 function PopularCard({ place }) {
   return (
@@ -16,11 +16,14 @@ function PopularCard({ place }) {
 function AllPopularScreen({ onBack }) {
   return (
     <div className="home-view">
-      <div className="home-all-popular-header">
+      <div className="home-all-popular-header shop-header-centered">
         <button className="shop-back" onClick={onBack} aria-label="Back">
           ←
         </button>
-        <div className="home-all-popular-title">Popular in Batam</div>
+        <div className="shop-header-text">
+          <div className="home-all-popular-title">Popular in Batam</div>
+        </div>
+        <div className="shop-header-spacer" />
       </div>
 
       <div className="home-all-popular-list">
@@ -32,7 +35,7 @@ function AllPopularScreen({ onBack }) {
   );
 }
 
-export default function Home() {
+export default function Home({ theme, onToggleTheme, onNavigate, onViewMap }) {
   const [screen, setScreen] = useState('home'); // 'home' | 'allPopular'
   const stepsPct = Math.min(100, Math.round((STEPS.current / STEPS.goal) * 100));
 
@@ -43,8 +46,16 @@ export default function Home() {
   return (
     <div className="home-view">
       <div className="home-header">
-        <div className="home-avatar" />
+        <img className="home-avatar" src={USER.avatar} alt={USER.name} />
         <div className="home-greeting">Good morning, {USER.name}</div>
+        <button
+          className="home-theme-toggle"
+          onClick={onToggleTheme}
+          aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+        >
+          {theme === 'dark' ? '☀️' : '🌙'}
+        </button>
         <div className="home-bell">
           🔔
           {USER.hasNotification && <span className="home-bell-dot" />}
@@ -53,14 +64,16 @@ export default function Home() {
 
       <div className="home-hero" style={{ backgroundImage: `url(${HERO_IMAGE})` }}>
         <div className="home-hero-title">Explore Batam</div>
-        <div className="home-hero-art">
-          {MAP_PINS.map((pin) => (
-            <div className="home-hero-pin" style={{ top: pin.top, left: pin.left }} key={pin.id}>
-              <span>{pin.icon}</span>
-            </div>
-          ))}
-        </div>
-        <button className="home-hero-btn">View Map 🗺️</button>
+        <div className="home-hero-art" />
+        <button
+          className="home-hero-btn"
+          onClick={() => {
+            if (onNavigate) onNavigate('map');
+            else if (onViewMap) onViewMap();
+          }}
+        >
+          View Map 🗺️
+        </button>
       </div>
 
       <div className="home-steps-card">
