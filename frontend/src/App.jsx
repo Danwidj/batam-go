@@ -4,7 +4,6 @@ import MapView from './components/MapView.jsx';
 import Shop from './components/Shop.jsx';
 import Stats from './components/Stats.jsx';
 import NavBar from './components/NavBar.jsx';
-import ConsentBanner from './components/ConsentBanner.jsx';
 import { INITIAL_VOUCHERS } from './data/vouchers.js';
 import { applyTheme, getInitialTheme } from './utils/theme.js';
 
@@ -27,7 +26,6 @@ export default function App() {
 
   return (
     <div className="app-shell">
-      <ConsentBanner />
       <div className="app-content">
         <div key={tab} className="tab-pane">
           {tab === 'home' && <Home theme={theme} onToggleTheme={toggleTheme} onNavigate={setTab} />}
