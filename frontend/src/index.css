@@ -528,8 +528,9 @@ button {
   gap: 10px;
   width: 100%;
   padding: 10px 12px;
-  background: white;
-  border: 2px solid transparent;
+  background: var(--color-bg-elevated);
+  color: var(--color-text);
+  border: 2px solid var(--color-border);
   border-radius: 12px;
   cursor: pointer;
   text-align: left;
@@ -537,7 +538,7 @@ button {
 }
 
 .osrm-route-card-btn:hover {
-  background: #f5f5f5;
+  background: var(--color-bg-subtle);
 }
 
 .osrm-route-card-btn:active {
@@ -545,9 +546,9 @@ button {
 }
 
 .osrm-route-card-btn.active {
-  background: #fafafa;
+  background: var(--color-bg-tint);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 12px var(--color-shadow);
 }
 
 .osrm-route-color-dot {
@@ -567,11 +568,12 @@ button {
 .osrm-route-card-label {
   font-size: 0.88rem;
   font-weight: 700;
+  color: var(--color-text);
 }
 
 .osrm-route-card-meta {
   font-size: 0.78rem;
-  color: #666;
+  color: var(--color-text-secondary);
 }
 
 .osrm-route-card-pts {
@@ -583,12 +585,12 @@ button {
 .osrm-route-card-check {
   font-size: 0.9rem;
   font-weight: 700;
-  color: #444;
+  color: var(--color-text);
 }
 
 .osrm-route-desc {
   font-size: 0.78rem;
-  color: #555;
+  color: var(--color-text-secondary);
   margin: 2px 0 0;
 }
 
@@ -863,6 +865,19 @@ button {
   font-weight: 700;
   color: #1b3a2b;
   margin-top: 2px;
+}
+
+:root[data-theme="dark"] .arrival-points-box {
+  background: rgba(46, 125, 50, 0.2);
+  border: 1px solid rgba(129, 199, 132, 0.3);
+}
+
+:root[data-theme="dark"] .arrival-points-label {
+  color: var(--color-accent-green);
+}
+
+:root[data-theme="dark"] .arrival-points-value {
+  color: #e8f5e9;
 }
 
 .arrival-claim-btn {

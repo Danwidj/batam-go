@@ -467,7 +467,7 @@ export default function MapView({ onVoucherEarned }) {
                 <button
                   key={i}
                   className={`osrm-route-card-btn ${i === selectedOsrmIndex ? 'active' : ''}`}
-                  style={{ borderColor: i === selectedOsrmIndex ? route.color : 'transparent' }}
+                  style={{ borderColor: i === selectedOsrmIndex ? route.color : undefined }}
                   onClick={() => { setSelectedOsrmIndex(i); setWalkState('idle'); setSimulatedPosition(null); }}
                 >
                   <span className="osrm-route-color-dot" style={{ background: route.color }} />
