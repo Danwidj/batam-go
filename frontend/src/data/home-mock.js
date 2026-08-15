@@ -10,9 +10,15 @@ export const STEPS = {
   activeMinutes: 88
 };
 
+export const HERO_IMAGE = '/assets/places/batam-skyline-hero.jpg';
+
 export const POPULAR = [
-  { id: 'barelang', name: 'Barelang Bridge', distanceKm: 24, points: 250 },
-  { id: 'nongsa', name: 'Nongsa Beach', distanceKm: 18, points: 180 }
+  { id: 'barelang', name: 'Barelang Bridge', distanceKm: 24, points: 250, image: '/assets/places/barelang-bridge.jpg' },
+  { id: 'nongsa', name: 'Nongsa Beach', distanceKm: 18, points: 180, image: '/assets/places/nongsa-beach.jpg' },
+  { id: 'mega-mall', name: 'Mega Mall Batam Centre', distanceKm: 6, points: 90, image: '/assets/places/mega-mall.jpg' },
+  { id: 'masjid-agung', name: 'Masjid Agung Batam', distanceKm: 7, points: 100, image: '/assets/places/masjid-agung.jpg' },
+  { id: 'tanjung-pinggir', name: 'Tanjung Pinggir Beach', distanceKm: 14, points: 150, image: '/assets/places/tanjung-pinggir.jpg' },
+  { id: 'nagoya-hill', name: 'Nagoya Hill Mall', distanceKm: 9, points: 110, image: '/assets/places/nagoya-hill.jpg' }
 ];
 
 export const MAP_PINS = [
